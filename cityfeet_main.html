@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px 'Helvetica Neue'; -webkit-text-stroke: #000000}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px 'Helvetica Neue'; -webkit-text-stroke: #000000; min-height: 17.0px}
+    span.s1 {font-kerning: none}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;head&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;title&gt;CityFeet - 跑步路线&lt;/title&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;style&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>#map { width: 100%; height: 80vh; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>body { margin: 0; font-family: sans-serif; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>h1 { text-align: center; padding: 10px; }</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
+<p class="p1"><span class="s1">&lt;body&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;h1&gt;CityFeet · 出差跑步助手&lt;/h1&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="map"&gt;&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script src="https://webapi.amap.com/loader.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>window._AMapSecurityConfig = {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>securityJsCode: "你申请的高德 JS 安全密钥（可选）"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>};</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>AMapLoader.load({</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>key: "你申请的高德Web Key", // ← 替换这里！</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>version: "2.0",</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>plugins: ['AMap.Geolocation']</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}).then(AMap =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const map = new AMap.Map('map', {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>zoom: 12,</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>center: [116.397428, 39.90923]</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>});</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const geolocation = new AMap.Geolocation();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>map.addControl(geolocation);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>geolocation.getCurrentPosition((status, result) =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>if (status === 'complete') {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>map.setCenter(result.position);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+</body>
+</html>
