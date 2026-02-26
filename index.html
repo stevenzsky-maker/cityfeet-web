@@ -10,11 +10,33 @@
   <script src="https://webapi.amap.com/loader.js"></script>
 
   <style>
+    /* 微信提示条样式 */
+    #weixin-tip {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #fff9e6;
+      border-bottom: 1px solid #ffd76e;
+      padding: 12px 20px;
+      text-align: center;
+      z-index: 99999;
+      font-size: 14px;
+      color: #d35400;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #weixin-tip .icon {
+      display: inline-block;
+      margin-right: 6px;
+      font-size: 16px;
+    }
+
     /* 全局样式：渐变底纹 + 字体 */
     body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
       min-height: 100vh;
       display: flex;
@@ -28,6 +50,7 @@
       padding: 20px 10px;
       width: 100%;
       max-width: 800px;
+      margin-top: 20px; /* 避开微信提示条 */
     }
 
     h1 {
@@ -114,9 +137,24 @@
     .close-btn:hover {
       background: #c0392b;
     }
+
+    /* 底部说明 */
+    footer {
+      margin-top: auto;
+      padding: 15px;
+      font-size: 0.85rem;
+      color: #95a5a6;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
+  <!-- 微信内访问提示条 -->
+  <div id="weixin-tip">
+    <span class="icon">⚠️</span>
+    微信内无法直接打开，请点击右上角「<strong>…</strong>」→「<strong>在浏览器中打开</strong>」
+  </div>
+
   <header>
     <h1>CityFeet · 出差跑步助手</h1>
     <p class="subtitle">自动定位当前位置，一键规划5公里环形跑路线</p>
@@ -138,7 +176,21 @@
     </div>
   </div>
 
+  <footer>
+    © 2026 CityFeet · 跑步路线助手
+  </footer>
+
   <script>
+    // === 检测微信并显示提示条 ===
+    (function() {
+      const ua = navigator.userAgent.toLowerCase();
+      const isWeixin = /micromessenger/i.test(ua);
+      if (isWeixin) {
+        document.getElementById('weixin-tip').style.display = 'block';
+        document.body.style.paddingTop = '60px'; // 为提示条留空间
+      }
+    })();
+
     // === 高德安全配置（可选）===
     window._AMapSecurityConfig = {
       // securityJsCode: "你的高德JS安全密钥（32位）"
