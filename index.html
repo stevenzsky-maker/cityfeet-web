@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CityFeet · 出差跑步助手（BY stevenZSky）</title>
+  <title>CityFeet · 出差跑步助手</title>
   <meta name="description" content="快速查找附近公园、规划5公里跑步路线">
 
   <!-- 高德地图 JS API Loader -->
@@ -32,7 +32,7 @@
       font-size: 16px;
     }
 
-    /* 全局样式：渐变底纹 + 字体 */
+    /* 全局样式 */
     body {
       margin: 0;
       padding: 0;
@@ -45,12 +45,24 @@
       color: #333;
     }
 
+    /* Logo 样式 */
+    .logo-container {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+    .logo-container img {
+      max-width: 180px;       /* 最大宽度 */
+      height: auto;           /* 保持比例 */
+      border-radius: 8px;     /* 可选：加圆角 */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
     header {
       text-align: center;
-      padding: 20px 10px;
+      padding: 0 10px 20px;
       width: 100%;
       max-width: 800px;
-      margin-top: 20px; /* 避开微信提示条 */
     }
 
     h1 {
@@ -138,7 +150,6 @@
       background: #c0392b;
     }
 
-    /* 底部说明 */
     footer {
       margin-top: auto;
       padding: 15px;
@@ -153,6 +164,11 @@
   <div id="weixin-tip">
     <span class="icon">⚠️</span>
     微信内无法直接打开，请点击右上角「<strong>…</strong>」→「<strong>在浏览器中打开</strong>」
+  </div>
+
+  <!-- Logo 图片 -->
+  <div class="logo-container">
+    <img src="images/logo.jpg" alt="CityFeet Logo">
   </div>
 
   <header>
@@ -177,7 +193,7 @@
   </div>
 
   <footer>
-    © 2026 CityFeet StevenZSky · 跑步路线助手
+    © 2026 CityFeet · 跑步路线助手
   </footer>
 
   <script>
@@ -187,21 +203,19 @@
       const isWeixin = /micromessenger/i.test(ua);
       if (isWeixin) {
         document.getElementById('weixin-tip').style.display = 'block';
-        document.body.style.paddingTop = '60px'; // 为提示条留空间
+        document.body.style.paddingTop = '60px';
       }
     })();
 
-    // === 高德安全配置（可选）===
+    // === 高德安全配置 ===
     window._AMapSecurityConfig = {
-      // securityJsCode: "你的高德JS安全密钥（32位）"
+      // securityJsCode: "你的高德JS安全密钥"
     };
 
-    // === 初始化地图 ===
     let map;
-
     function initMap(center) {
       AMapLoader.load({
-        key: "你申请的高德Web Key", // ← 替换这里！
+        key: "你申请的高德Web Key", // ← 别忘了替换！
         version: "2.0",
         plugins: ['AMap.Geolocation', 'AMap.Scale', 'AMap.ControlBar']
       }).then((AMap) => {
@@ -210,12 +224,9 @@
           center: center,
           viewMode: '3D'
         });
-
-        // 添加比例尺和缩放控件
         map.addControl(new AMap.Scale());
         map.addControl(new AMap.ControlBar());
 
-        // 自动定位（仅首次）
         const geolocation = new AMap.Geolocation({
           enableHighAccuracy: true,
           timeout: 10000,
@@ -236,10 +247,8 @@
       });
     }
 
-    // 默认中心点（北京）
     initMap([116.397428, 39.90923]);
 
-    // 重新定位按钮
     function locateMe() {
       if (map) {
         const geolocation = new AMap.Geolocation();
@@ -254,7 +263,6 @@
       }
     }
 
-    // 对话框控制
     function showModal() {
       document.getElementById('modal-overlay').style.display = 'flex';
     }
@@ -262,7 +270,6 @@
       document.getElementById('modal-overlay').style.display = 'none';
     }
 
-    // 点击 Esc 关闭对话框
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') hideModal();
     });
