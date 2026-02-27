@@ -235,37 +235,56 @@
         </div>
     </div>
 
-    <!-- 替换 YOUR_API_KEY 为您的高德JS API Key（必须是JS API类型） -->
+    <!-- 替换 YOUR_API_KEY 为您的高德JS API Key -->
     <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50"></script>
     
     <script>
-        // 关键修复：精确检测域名（支持localhost和127.0.0.1）
+        // ✅ 关键修复：解决"地图正常但提示错误"问题
+        // 高德API加载成功后，忽略白名单检测（因为地图已显示）
+        let apiLoaded = false;
+        let mapInitialized = false;
+
+        // 检查API是否加载成功
+        function isApiLoaded() {
+            return typeof AMap !== 'undefined' && apiLoaded;
+        }
+
+        // 检查域名白名单（仅当API未加载时检查）
         function checkDomain() {
+            if (isApiLoaded()) return true; // API已加载，跳过域名检查
             const hostname = window.location.hostname;
-            // 高德要求：白名单必须包含 localhost 或 127.0.0.1
             return hostname === 'localhost' || hostname === '127.0.0.1';
         }
 
-        // 关键修复：检测Key类型（必须是JS API）
+        // 检查Key类型
         function checkKeyType() {
+            if (isApiLoaded()) return 'valid'; // API已加载，跳过Key检查
             try {
                 AMap.service(['AMap.RoutePlanning'], () => {});
+                return 'valid';
             } catch (e) {
-                if (e.message.includes('invalid key')) {
-                    return 'invalid_key_type'; // Key类型错误
-                }
-                return 'unknown_error';
+                return 'invalid_key_type';
             }
-            return 'valid';
         }
 
-        // 状态检查（核心修复！）
+        // 状态检查（终极修复）
         function checkApiStatus() {
             const status = document.getElementById('status-bar');
             const statusText = document.querySelector('.status-text');
             const statusLink = document.getElementById('status-link');
             
-            // 1. 检查Key类型
+            // 1. 检查API是否已加载
+            if (isApiLoaded()) {
+                statusText.textContent = '✅ 高德API已加载！地图正常显示';
+                status.style.backgroundColor = '#f6ffed';
+                status.style.color = '#52c41a';
+                statusLink.textContent = '地图已加载';
+                statusLink.href = '#';
+                status.style.display = 'flex';
+                return;
+            }
+
+            // 2. 检查Key类型（仅当API未加载时）
             if (checkKeyType() === 'invalid_key_type') {
                 statusText.textContent = '❌ Key类型错误！必须使用"JS API"类型Key（不是Web服务）';
                 status.style.backgroundColor = '#fff2f2';
@@ -276,10 +295,10 @@
                 return;
             }
             
-            // 2. 检查域名白名单
+            // 3. 检查域名（仅当API未加载时）
             if (!checkDomain()) {
                 const hostname = window.location.hostname;
-                statusText.textContent = `⚠️ 域名白名单错误！\n当前域名: ${hostname}\n\n✅ 请在高德控制台：\n1. 添加 "localhost"（输入后按Backspace）\n2. 或添加 "127.0.0.1"`;
+                statusText.textContent = `⚠️ 域名未在白名单！\n当前域名: ${hostname}\n\n✅ 请在高德控制台：\n1. 添加 "localhost"（输入后按Backspace）\n2. 或添加 "127.0.0.1"`;
                 status.style.backgroundColor = '#fff2f2';
                 status.style.color = '#fa8c16';
                 statusLink.textContent = '高德白名单设置';
@@ -288,15 +307,12 @@
                 return;
             }
             
-            // 3. 检查路线规划服务
+            // 4. 检查路线规划服务（仅当API未加载时）
             try {
                 AMap.service(['AMap.RoutePlanning'], () => {
-                    statusText.textContent = '✅ 高德API配置正常！';
-                    status.style.backgroundColor = '#f6ffed';
-                    status.style.color = '#52c41a';
-                    statusLink.textContent = '路线已生成';
-                    statusLink.href = '#';
-                    status.style.display = 'flex';
+                    // 服务加载成功，但API可能已加载
+                    apiLoaded = true;
+                    checkApiStatus(); // 重新检查状态
                 });
             } catch (e) {
                 statusText.textContent = '⚠️ 路线规划服务未启用！';
@@ -308,23 +324,28 @@
             }
         }
 
-        // 初始化地图
+        // 初始化地图（标记API加载成功）
         function initMap() {
             const map = new AMap.Map('map-container', {
                 zoom: 13,
                 center: [121.4737, 31.2304]
             });
+            mapInitialized = true;
+            apiLoaded = true; // 关键：标记API已加载
         }
 
         // 页面加载
         document.addEventListener('DOMContentLoaded', function() {
+            // 确保高德API加载
+            window.onload = function() {
+                if (typeof AMap !== 'undefined') {
+                    apiLoaded = true;
+                    initMap();
+                }
+            };
+            
             // 检查API状态
             setTimeout(checkApiStatus, 500);
-            
-            // 如果API可用，初始化地图
-            if (typeof AMap !== 'undefined') {
-                initMap();
-            }
         });
 
         // 状态链接跳转
