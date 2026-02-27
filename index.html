@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <title>CityFeet - 出差城市跑步助手</title>
     <style>
+        /* 重置所有元素的margin和padding，确保布局一致 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* 设置全局背景和字体 */
         body { 
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; 
             background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
             min-height: 100vh;
             padding: 20px;
         }
+        
+        /* 页面容器样式 */
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -19,6 +24,8 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
         }
+        
+        /* 顶部标题栏样式 */
         .header {
             background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
             padding: 25px 30px;
@@ -26,6 +33,8 @@
             color: white;
             position: relative;
         }
+        
+        /* 标题图标和文字样式 */
         .logo {
             font-size: 28px;
             font-weight: bold;
@@ -36,6 +45,7 @@
             justify-content: center;
             gap: 10px;
         }
+        
         .logo-icon {
             background: #1890ff;
             width: 40px;
@@ -48,20 +58,25 @@
             font-weight: bold;
             font-size: 18px;
         }
+        
         .header-subtitle {
             font-size: 16px;
             opacity: 0.9;
             max-width: 600px;
             margin: 0 auto;
         }
+        
+        /* 地图容器 - 关键：必须有固定高度 */
         .map-container {
             width: 100%;
-            height: 500px;
+            height: 500px; /* 必须设置固定高度 */
             border-radius: 0 0 16px 16px;
             overflow: hidden;
             margin-bottom: 25px;
-            min-height: 500px; /* 关键修复：确保最小高度 */
+            min-height: 500px; /* 防止高度为0 */
         }
+        
+        /* 状态栏样式 */
         .status-bar {
             background: #fff2f2;
             color: #ff4d4f;
@@ -74,20 +89,25 @@
             align-items: center;
             justify-content: space-between;
         }
+        
         .status-text {
             flex: 1;
         }
+        
         .status-link {
             color: #1890ff;
             text-decoration: underline;
             font-weight: 500;
             margin-left: 10px;
         }
+        
+        /* 信息面板样式 */
         .info-panel {
             background: white;
             padding: 25px;
             border-top: 1px solid #f0f2f5;
         }
+        
         .info-title {
             font-size: 20px;
             color: #1890ff;
@@ -96,6 +116,7 @@
             align-items: center;
             gap: 8px;
         }
+        
         .safety-tip {
             background: #fff8e6;
             border-left: 4px solid #faad14;
@@ -104,6 +125,7 @@
             margin: 15px 0;
             font-size: 15px;
         }
+        
         .route-info {
             background: #e6f7ff;
             border-radius: 8px;
@@ -111,6 +133,8 @@
             margin: 12px 0;
             font-size: 15px;
         }
+        
+        /* 按钮样式 */
         .btn {
             background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
             color: white;
@@ -125,11 +149,14 @@
             margin-top: 15px;
             box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
         }
+        
         .btn:hover {
             background: linear-gradient(120deg, #0d75d1 0%, #2c91e3 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(24, 144, 255, 0.35);
         }
+        
+        /* 页脚样式 */
         .footer {
             text-align: center;
             padding: 20px;
@@ -138,6 +165,8 @@
             border-top: 1px solid #f0f2f5;
             background: #fafafa;
         }
+        
+        /* 分享按钮样式 */
         .share-btn {
             background: #1890ff;
             color: white;
@@ -148,14 +177,18 @@
             font-size: 14px;
             margin-top: 10px;
         }
+        
         .share-btn:hover {
             background: #40a9ff;
         }
+        
+        /* 分享区域样式 */
         .share-section {
             background: #f9f9f9;
             padding: 20px;
             border-top: 1px dashed #e8e8e8;
         }
+        
         .share-title {
             font-weight: bold;
             color: #1890ff;
@@ -164,11 +197,13 @@
             align-items: center;
             gap: 8px;
         }
+        
         .share-content {
             line-height: 1.6;
             color: #333;
             font-size: 15px;
         }
+        
         .share-code {
             background: #f0f5ff;
             padding: 12px;
@@ -191,13 +226,16 @@
             <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
         </div>
 
+        <!-- 状态栏：显示API加载状态 -->
         <div class="status-bar" id="status-bar">
             <div class="status-text">正在检查高德API配置...</div>
             <div class="status-link" id="status-link">配置指南</div>
         </div>
         
+        <!-- 地图容器：必须有固定高度 -->
         <div class="map-container" id="map-container"></div>
         
+        <!-- 信息面板 -->
         <div class="info-panel">
             <div class="info-title">📍 当前路线：上海外滩5公里环线</div>
             <p>为您生成安全闭环路线，全程江景+历史建筑，避开施工区</p>
@@ -236,35 +274,37 @@
         </div>
     </div>
 
-    <!-- 关键修复：高德API加载完成后自动触发状态检查 -->
+    <!-- 高德地图API加载：关键点 - 使用正确的Key -->
     <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50" 
-            onload="onMapLoaded()"
+            onload="onMapLoaded()"  <!-- API加载成功回调 -->
             onerror="onMapError()"></script>
     
     <script>
-        // ✅ 核心修复：移除死循环，使用唯一状态检查
-        let apiLoaded = false;
-        let statusChecked = false; // 新增：防止重复检查
-
+        // 状态跟踪变量
+        let apiLoaded = false;  // 标记API是否加载成功
+        let statusChecked = false;  // 防止重复检查状态
+        
+        // API加载成功回调
         function onMapLoaded() {
             apiLoaded = true;
-            checkApiStatus(); // 检查状态（仅调用一次）
+            checkApiStatus();  // 检查API加载状态
         }
-
+        
+        // API加载失败回调
         function onMapError() {
-            // 不再设置状态，由checkApiStatus统一处理
             console.error('高德API加载失败');
         }
-
+        
+        // 检查API加载状态
         function checkApiStatus() {
-            // ✅ 关键修复：防止重复检查
-            if (statusChecked) return;
+            if (statusChecked) return;  // 防止重复检查
             statusChecked = true;
-
+            
             const status = document.getElementById('status-bar');
             const statusText = document.querySelector('.status-text');
             const statusLink = document.getElementById('status-link');
             
+            // 根据apiLoaded状态更新状态栏
             if (apiLoaded) {
                 statusText.textContent = '✅ 高德API已加载！地图正常显示';
                 status.style.backgroundColor = '#f6ffed';
@@ -281,36 +321,40 @@
                 status.style.display = 'flex';
             }
         }
-
-        // ✅ 关键修复：确保地图容器高度非0
+        
+        // 初始化地图
         function initMap() {
             const mapContainer = document.getElementById('map-container');
+            
+            // 确保地图容器有非零高度
             if (!mapContainer || mapContainer.offsetHeight === 0) {
-                mapContainer.style.height = '500px';
+                mapContainer.style.height = '500px';  // 强制设置高度
             }
             
+            // 创建地图实例
             const map = new AMap.Map('map-container', {
-                zoom: 13,
-                center: [121.4737, 31.2304]
+                zoom: 13,  // 地图缩放级别
+                center: [121.4737, 31.2304]  // 上海外滩中心坐标
             });
             
-            // ✅ 确保地图显示
-            map.resize();
+            // 确保地图正确显示
+            map.resize();  // 关键：调整地图大小
         }
 
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ 关键修复：移除重复初始化
             window.addEventListener('load', function() {
                 if (apiLoaded && !statusChecked) {
-                    initMap();
-                    checkApiStatus(); // 仅检查一次
+                    initMap();  // 初始化地图
+                    checkApiStatus();  // 检查状态
                 }
             });
             
-            // 初始检查（仅一次）
+            // 初始状态检查
             setTimeout(checkApiStatus, 500);
         });
 
+        // 状态链接点击事件
         document.getElementById('status-link').addEventListener('click', function() {
             window.open(this.href, '_blank');
         });
