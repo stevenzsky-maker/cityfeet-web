@@ -61,14 +61,26 @@
             overflow: hidden;
             margin-bottom: 25px;
         }
-        .error-box {
+        .status-bar {
             background: #fff2f2;
-            border: 1px solid #ff4d4f;
             color: #ff4d4f;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 25px;
-            display: none;
+            padding: 12px 25px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .status-text {
+            flex: 1;
+        }
+        .status-link {
+            color: #1890ff;
+            text-decoration: underline;
+            font-weight: 500;
+            margin-left: 10px;
         }
         .info-panel {
             background: white;
@@ -178,15 +190,12 @@
             <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
         </div>
 
-        <div class="map-container" id="map-container"></div>
-        
-        <div class="error-box" id="error-box">
-            <strong>⚠️ 高德地图加载失败！</strong><br>
-            请检查：<br>
-            1️⃣ <span id="error-key">高德API Key是否已替换</span><br>
-            2️⃣ <span id="error-domain">域名是否已添加到高德白名单</span><br>
-            3️⃣ <a href="https://lbs.amap.com/api/javascript-api/guide/faq#key" target="_blank">高德Key配置指南</a>
+        <div class="status-bar" id="status-bar">
+            <div class="status-text">正在检查高德API配置...</div>
+            <div class="status-link" id="status-link">配置指南</div>
         </div>
+        
+        <div class="map-container" id="map-container"></div>
         
         <div class="info-panel">
             <div class="info-title">📍 当前路线：上海外滩5公里环线</div>
@@ -226,77 +235,130 @@
         </div>
     </div>
 
-    <!-- 高德地图API (替换 YOUR_KEY 为你的API Key) -->
-    <script src="https://webapi.amap.com/maps?v=2.0&key=386a93a0a0c02f99fa19a3f0316223dc"></script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50"></script>
     
     <script>
-        // 检查高德API是否加载成功
-        window.onload = function() {
-            if (typeof AMap === 'undefined') {
-                document.getElementById('error-box').style.display = 'block';
-                document.getElementById('error-key').innerText = '高德API未加载！';
-                document.getElementById('error-domain').innerText = '请确认域名白名单已设置（高德控制台→安全设置）';
-            } else {
-                initMap();
+        // 检查域名是否在白名单中
+        function checkDomain() {
+            const hostname = window.location.hostname;
+            // 检查是否是localhost
+            if (hostname === 'localhost') {
+                return true;
             }
-        };
-
-        function initMap() {
-            const map = new AMap.Map('map-container', {
-                zoom: 13,
-                center: [121.4737, 31.2304] // 上海外滩坐标
-            });
-
-            // 检查地图是否加载
-            map.on('complete', function() {
-                document.getElementById('error-box').style.display = 'none';
-            });
-
-            map.on('error', function(e) {
-                document.getElementById('error-box').style.display = 'block';
-                document.getElementById('error-key').innerText = 'Key无效或未启用服务';
-                document.getElementById('error-domain').innerText = '请检查域名白名单：' + window.location.hostname;
-            });
+            // 检查是否包含localhost
+            return hostname.includes('localhost');
         }
 
-        // 生成5公里闭环路线（外滩→陆家嘴→外滩）
-        function generateCityFeetRoute() {
+        // 检查API状态
+        function checkApiStatus() {
+            const status = document.getElementById('status-bar');
+            const statusText = document.querySelector('.status-text');
+            const statusLink = document.getElementById('status-link');
+            
+            // 1. 检查高德API是否加载
             if (typeof AMap === 'undefined') {
-                alert('地图加载失败，请检查高德API配置');
+                statusText.textContent = '❌ 高德API未加载！请检查Key或网络';
+                status.style.backgroundColor = '#fff2f2';
+                status.style.color = '#ff4d4f';
+                statusLink.textContent = '配置指南';
+                statusLink.href = '#';
+                status.style.display = 'flex';
                 return;
             }
             
-            AMap.service(['AMap.RoutePlanning'], function() {
-                const driving = new AMap.RoutePlanning({
-                    map: map,
-                    city: '上海',
-                    panel: 'route-panel',
-                    policy: 1
+            // 2. 检查域名白名单
+            if (!checkDomain()) {
+                statusText.textContent = `⚠️ 域名未在白名单！当前域名: ${window.location.hostname}`;
+                status.style.backgroundColor = '#fff2f2';
+                status.style.color = '#fa8c16';
+                statusLink.textContent = '添加localhost';
+                statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/faq#key';
+                status.style.display = 'flex';
+                return;
+            }
+            
+            // 3. 检查路线规划服务
+            try {
+                AMap.service(['AMap.RoutePlanning'], function() {
+                    // 服务可用
+                    statusText.textContent = '✅ 高德API配置正常！';
+                    status.style.backgroundColor = '#f6ffed';
+                    status.style.color = '#52c41a';
+                    statusLink.textContent = '路线已生成';
+                    statusLink.href = '#';
+                    status.style.display = 'flex';
+                }, function(e) {
+                    // 服务不可用
+                    statusText.textContent = '⚠️ 路线规划服务未启用！';
+                    status.style.backgroundColor = '#fff2f2';
+                    status.style.color = '#fa8c16';
+                    statusLink.textContent = '启用服务';
+                    statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/services/routeplan';
+                    status.style.display = 'flex';
                 });
-                
-                const start = [121.4737, 31.2304];
-                const via = [121.4900, 31.2350];
-                const end = [121.4737, 31.2304];
-                
-                driving.search(
-                    start,
-                    end,
-                    { 
-                        waypoints: [via]
-                    }
-                );
-                
-                setTimeout(() => {
-                    const safetyMsg = document.createElement('div');
-                    safetyMsg.className = 'safety-tip';
-                    safetyMsg.innerHTML = '⚠️ 该路线已避开施工区域，全程人行道安全通行';
-                    document.querySelector('.info-panel').appendChild(safetyMsg);
-                }, 2000);
+            } catch (e) {
+                statusText.textContent = '⚠️ 高德API配置错误！';
+                status.style.backgroundColor = '#fff2f2';
+                status.style.color = '#fa8c16';
+                statusLink.textContent = '配置指南';
+                statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/faq#key';
+                status.style.display = 'flex';
+            }
+        }
+
+        // 初始化地图
+        function initMap() {
+            const map = new AMap.Map('map-container', {
+                zoom: 13,
+                center: [121.4737, 31.2304]
             });
         }
 
+        // 生成路线
+        function generateCityFeetRoute() {
+            try {
+                AMap.service(['AMap.RoutePlanning'], function() {
+                    const driving = new AMap.RoutePlanning({
+                        map: map,
+                        city: '上海',
+                        panel: 'route-panel',
+                        policy: 1
+                    });
+                    
+                    const start = [121.4737, 31.2304];
+                    const via = [121.4900, 31.2350];
+                    const end = [121.4737, 31.2304];
+                    
+                    driving.search(
+                        start,
+                        end,
+                        { 
+                            waypoints: [via]
+                        }
+                    );
+                }, function(e) {
+                    alert('路线生成失败！\n' + 
+                          '原因：' + e.message + '\n\n' +
+                          '请检查：\n1. 域名白名单包含localhost\n2. 路线规划服务已启用');
+                });
+            } catch (e) {
+                alert('地图操作失败！\n' + e.message);
+            }
+        }
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查API状态
+            setTimeout(checkApiStatus, 500);
+            
+            // 如果API可用，初始化地图
+            if (typeof AMap !== 'undefined') {
+                initMap();
+            }
+        });
+
+        // 事件绑定
         document.getElementById('generate-btn').addEventListener('click', generateCityFeetRoute);
-        
         document.getElementById('share-btn').addEventListener('click', function() {
             const text = document.getElementById('share-code').textContent;
             navigator.clipboard.writeText(text).then(() => {
@@ -304,13 +366,16 @@
             });
         });
         
-        // 自动执行（测试用）
-        setTimeout(function() {
-            if (typeof AMap !== 'undefined') {
-                initMap();
-                setTimeout(generateCityFeetRoute, 1000);
+        // 点击状态链接跳转
+        document.getElementById('status-link').addEventListener('click', function() {
+            if (this.textContent === '配置指南') {
+                window.open('https://lbs.amap.com/api/javascript-api/guide/faq#key', '_blank');
+            } else if (this.textContent === '添加localhost') {
+                window.open('https://lbs.amap.com/api/javascript-api/guide/faq#key', '_blank');
+            } else if (this.textContent === '启用服务') {
+                window.open('https://lbs.amap.com/api/javascript-api/guide/services/routeplan', '_blank');
             }
-        }, 1500);
+        });
     </script>
 </body>
 </html>
