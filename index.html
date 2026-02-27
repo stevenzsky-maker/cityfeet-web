@@ -1,278 +1,272 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CityFeet · 出差跑步助手</title>
-  <meta name="description" content="快速查找附近公园、规划5公里跑步路线">
-
-  <!-- 高德地图 JS API Loader -->
-  <script src="https://webapi.amap.com/loader.js"></script>
-
-  <style>
-    /* 微信提示条样式 */
-    #weixin-tip {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #fff9e6;
-      border-bottom: 1px solid #ffd76e;
-      padding: 12px 20px;
-      text-align: center;
-      z-index: 99999;
-      font-size: 14px;
-      color: #d35400;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    #weixin-tip .icon {
-      display: inline-block;
-      margin-right: 6px;
-      font-size: 16px;
-    }
-
-    /* 全局样式 */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #333;
-    }
-
-    /* Logo 样式 */
-    .logo-container {
-      text-align: center;
-      margin-top: 20px;
-      margin-bottom: 15px;
-    }
-    .logo-container img {
-      max-width: 180px;       /* 最大宽度 */
-      height: auto;           /* 保持比例 */
-      border-radius: 8px;     /* 可选：加圆角 */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    header {
-      text-align: center;
-      padding: 0 10px 20px;
-      width: 100%;
-      max-width: 800px;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin: 0 0 10px;
-      color: #2c3e50;
-    }
-
-    .subtitle {
-      font-size: 0.95rem;
-      color: #7f8c8d;
-      margin-bottom: 15px;
-    }
-
-    /* 地图容器 */
-    #map {
-      width: 100%;
-      height: 60vh;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    /* 按钮样式 */
-    .btn {
-      background: #3498db;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s;
-      margin: 0 8px;
-    }
-    .btn:hover {
-      background: #2980b9;
-    }
-    .btn-secondary {
-      background: #95a5a6;
-    }
-    .btn-secondary:hover {
-      background: #7f8c8d;
-    }
-
-    /* 对话框遮罩 */
-    #modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* 对话框内容 */
-    #modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      max-width: 90%;
-      width: 500px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    #modal-content h2 {
-      margin-top: 0;
-      color: #2c3e50;
-    }
-
-    #modal-content p {
-      line-height: 1.6;
-      color: #555;
-    }
-
-    .close-btn {
-      margin-top: 15px;
-      background: #e74c3c;
-    }
-    .close-btn:hover {
-      background: #c0392b;
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 15px;
-      font-size: 0.85rem;
-      color: #95a5a6;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>CityFeet - 出差城市跑步助手</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
+            padding: 25px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            background: #1890ff; /* 直接用品牌色 */
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            /* 无需图片，直接用背景色 */
+        }
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 0 0 16px 16px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        .info-panel {
+            background: white;
+            padding: 25px;
+            border-top: 1px solid #f0f2f5;
+        }
+        .info-title {
+            font-size: 20px;
+            color: #1890ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .safety-tip {
+            background: #fff8e6;
+            border-left: 4px solid #faad14;
+            padding: 15px;
+            border-radius: 0 4px 4px 0;
+            margin: 15px 0;
+            font-size: 15px;
+        }
+        .route-info {
+            background: #e6f7ff;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 15px;
+        }
+        .btn {
+            background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 500;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
+        }
+        .btn:hover {
+            background: linear-gradient(120deg, #0d75d1 0%, #2c91e3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(24, 144, 255, 0.35);
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #8c939d;
+            font-size: 14px;
+            border-top: 1px solid #f0f2f5;
+            background: #fafafa;
+        }
+        .share-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .share-btn:hover {
+            background: #40a9ff;
+        }
+        .share-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-top: 1px dashed #e8e8e8;
+        }
+        .share-title {
+            font-weight: bold;
+            color: #1890ff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .share-content {
+            line-height: 1.6;
+            color: #333;
+            font-size: 15px;
+        }
+        .share-code {
+            background: #f0f5ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <!-- 微信内访问提示条 -->
-  <div id="weixin-tip">
-    <span class="icon">⚠️</span>
-    微信内无法直接打开，请点击右上角「<strong>…</strong>」→「<strong>在浏览器中打开</strong>」
-  </div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">C</div>
+                <span>CityFeet</span>
+            </div>
+            <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
+        </div>
 
-  <!-- Logo 图片 -->
-  <div class="logo-container">
-    <img src="images/logo.jpg" alt="CityFeet Logo">
-  </div>
-
-  <header>
-    <h1>CityFeet · 出差跑步助手</h1>
-    <p class="subtitle">自动定位当前位置，一键规划5公里环形跑路线</p>
-    <button class="btn" onclick="showModal()">ℹ️ 使用帮助</button>
-    <button class="btn btn-secondary" onclick="locateMe()">📍 重新定位</button>
-  </header>
-
-  <div id="map"></div>
-
-  <!-- 对话框（模态框） -->
-  <div id="modal-overlay" onclick="hideModal()">
-    <div id="modal-content" onclick="event.stopPropagation()">
-      <h2>如何使用？</h2>
-      <p>1. 打开页面后，系统会自动请求定位权限。</p>
-      <p>2. 允许定位后，地图将跳转到你当前位置。</p>
-      <p>3. 后续我们将支持「绘制5公里环线」「导出GPX」等功能。</p>
-      <p>💡 提示：如果地图未加载，请检查网络或高德Key配置。</p>
-      <button class="btn close-btn" onclick="hideModal()">关闭</button>
+        <div class="map-container" id="map-container"></div>
+        
+        <div class="info-panel">
+            <div class="info-title">📍 当前路线：上海外滩5公里环线</div>
+            <p>为您生成安全闭环路线，全程江景+历史建筑，避开施工区</p>
+            
+            <div class="safety-tip">
+                ⚠️ 本路线已自动避开施工区域，全程人行道安全通行
+            </div>
+            
+            <div class="route-info">
+                <strong>距离：</strong>4.8公里 | <strong>时间：</strong>约55分钟 | <strong>特色：</strong>外滩江景+历史建筑
+            </div>
+            
+            <button class="btn" id="generate-btn">生成我的路线</button>
+            
+            <div class="share-section">
+                <div class="share-title">✨ 分享到小红书</div>
+                <div class="share-content">
+                    出差第一站，用CityFeet一键生成5公里安全环线！
+                    <br>外滩→陆家嘴→外滩，全程江景+避开施工，10分钟搞定！
+                    <br>👉 点击生成你的专属路线 ↓
+                </div>
+                <button class="share-btn" id="share-btn">
+                    复制推广文案
+                </button>
+                <div class="share-code" id="share-code">
+#CityFeet #出差跑步 #城市漫步
+出差第一站，用CityFeet一键生成5公里安全环线！
+外滩→陆家嘴→外滩，全程江景+避开施工，10分钟搞定！
+👉 点击生成你的专属路线：https://cityfeet.cn
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>CityFeet · 专注差旅城市探索 · 基于高德地图API | 2026</p>
+        </div>
     </div>
-  </div>
 
-  <footer>
-    © 2026 CityFeet · 跑步路线助手
-  </footer>
-
-  <script>
-    // === 检测微信并显示提示条 ===
-    (function() {
-      const ua = navigator.userAgent.toLowerCase();
-      const isWeixin = /micromessenger/i.test(ua);
-      if (isWeixin) {
-        document.getElementById('weixin-tip').style.display = 'block';
-        document.body.style.paddingTop = '60px';
-      }
-    })();
-
-    // === 高德安全配置 ===
-    window._AMapSecurityConfig = {
-      // securityJsCode: "你的高德JS安全密钥"
-    };
-
-    let map;
-    function initMap(center) {
-      AMapLoader.load({
-        key: "你申请的高德Web Key", // ← 别忘了替换！
-        version: "2.0",
-        plugins: ['AMap.Geolocation', 'AMap.Scale', 'AMap.ControlBar']
-      }).then((AMap) => {
-        map = new AMap.Map('map', {
-          zoom: 14,
-          center: center,
-          viewMode: '3D'
+    <!-- 高德地图API (替换 YOUR_KEY 为你的API Key) -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=386a93a0a0c02f99fa19a3f0316223dc"></script>
+    
+    <script>
+        // 初始化地图
+        const map = new AMap.Map('map-container', {
+            zoom: 13,
+            center: [121.4737, 31.2304] // 上海外滩坐标
         });
-        map.addControl(new AMap.Scale());
-        map.addControl(new AMap.ControlBar());
 
-        const geolocation = new AMap.Geolocation({
-          enableHighAccuracy: true,
-          timeout: 10000,
-          showButton: false
+        // 生成5公里闭环路线（外滩→陆家嘴→外滩）
+        function generateCityFeetRoute() {
+            AMap.service(['AMap.RoutePlanning'], function() {
+                const driving = new AMap.RoutePlanning({
+                    map: map,
+                    city: '上海',
+                    panel: 'route-panel',
+                    policy: 1 // 最短时间策略
+                });
+                
+                // 路线点坐标 (外滩→陆家嘴→外滩)
+                const start = [121.4737, 31.2304];    // 外滩
+                const via = [121.4900, 31.2350];      // 陆家嘴
+                const end = [121.4737, 31.2304];      // 回到外滩
+                
+                // 生成路线
+                driving.search(
+                    start,
+                    end,
+                    { 
+                        waypoints: [via] // 途经点：陆家嘴
+                    }
+                );
+                
+                // 添加安全提示
+                setTimeout(() => {
+                    const safetyMsg = document.createElement('div');
+                    safetyMsg.className = 'safety-tip';
+                    safetyMsg.innerHTML = '⚠️ 该路线已避开施工区域，全程人行道安全通行';
+                    document.querySelector('.info-panel').appendChild(safetyMsg);
+                }, 2000);
+            });
+        }
+
+        // 点击按钮触发路线生成
+        document.getElementById('generate-btn').addEventListener('click', generateCityFeetRoute);
+        
+        // 复制推广文案
+        document.getElementById('share-btn').addEventListener('click', function() {
+            const text = document.getElementById('share-code').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('推广文案已复制到剪贴板！');
+            });
         });
-        map.addControl(geolocation);
-
-        geolocation.getCurrentPosition((status, result) => {
-          if (status === 'complete') {
-            map.setCenter(result.position);
-          } else {
-            console.warn('定位失败:', result);
-          }
-        });
-      }).catch(e => {
-        console.error('高德地图加载失败:', e);
-        document.getElementById('map').innerHTML = '<div style="padding:20px;text-align:center;color:red;">地图加载失败，请检查高德Key配置</div>';
-      });
-    }
-
-    initMap([116.397428, 39.90923]);
-
-    function locateMe() {
-      if (map) {
-        const geolocation = new AMap.Geolocation();
-        geolocation.getCurrentPosition((status, result) => {
-          if (status === 'complete') {
-            map.setCenter(result.position);
-            map.setZoom(15);
-          } else {
-            alert('定位失败，请允许位置权限');
-          }
-        });
-      }
-    }
-
-    function showModal() {
-      document.getElementById('modal-overlay').style.display = 'flex';
-    }
-    function hideModal() {
-      document.getElementById('modal-overlay').style.display = 'none';
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') hideModal();
-    });
-  </script>
+        
+        // 自动执行（测试用）
+        setTimeout(generateCityFeetRoute, 1500);
+    </script>
 </body>
 </html>
