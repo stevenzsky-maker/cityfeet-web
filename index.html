@@ -37,7 +37,7 @@
             gap: 10px;
         }
         .logo-icon {
-            background: #1890ff; /* 直接用品牌色 */
+            background: #1890ff;
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -47,7 +47,6 @@
             color: white;
             font-weight: bold;
             font-size: 18px;
-            /* 无需图片，直接用背景色 */
         }
         .header-subtitle {
             font-size: 16px;
@@ -61,6 +60,15 @@
             border-radius: 0 0 16px 16px;
             overflow: hidden;
             margin-bottom: 25px;
+        }
+        .error-box {
+            background: #fff2f2;
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 25px;
+            display: none;
         }
         .info-panel {
             background: white;
@@ -172,6 +180,14 @@
 
         <div class="map-container" id="map-container"></div>
         
+        <div class="error-box" id="error-box">
+            <strong>⚠️ 高德地图加载失败！</strong><br>
+            请检查：<br>
+            1️⃣ <span id="error-key">高德API Key是否已替换</span><br>
+            2️⃣ <span id="error-domain">域名是否已添加到高德白名单</span><br>
+            3️⃣ <a href="https://lbs.amap.com/api/javascript-api/guide/faq#key" target="_blank">高德Key配置指南</a>
+        </div>
+        
         <div class="info-panel">
             <div class="info-title">📍 当前路线：上海外滩5公里环线</div>
             <p>为您生成安全闭环路线，全程江景+历史建筑，避开施工区</p>
@@ -211,40 +227,65 @@
     </div>
 
     <!-- 高德地图API (替换 YOUR_KEY 为你的API Key) -->
-    <script src="https://webapi.amap.com/maps?v=2.0&key=386a93a0a0c02f99fa19a3f0316223dc"></script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=YOUR_KEY"></script>
     
     <script>
-        // 初始化地图
-        const map = new AMap.Map('map-container', {
-            zoom: 13,
-            center: [121.4737, 31.2304] // 上海外滩坐标
-        });
+        // 检查高德API是否加载成功
+        window.onload = function() {
+            if (typeof AMap === 'undefined') {
+                document.getElementById('error-box').style.display = 'block';
+                document.getElementById('error-key').innerText = '高德API未加载！';
+                document.getElementById('error-domain').innerText = '请确认域名白名单已设置（高德控制台→安全设置）';
+            } else {
+                initMap();
+            }
+        };
+
+        function initMap() {
+            const map = new AMap.Map('map-container', {
+                zoom: 13,
+                center: [121.4737, 31.2304] // 上海外滩坐标
+            });
+
+            // 检查地图是否加载
+            map.on('complete', function() {
+                document.getElementById('error-box').style.display = 'none';
+            });
+
+            map.on('error', function(e) {
+                document.getElementById('error-box').style.display = 'block';
+                document.getElementById('error-key').innerText = 'Key无效或未启用服务';
+                document.getElementById('error-domain').innerText = '请检查域名白名单：' + window.location.hostname;
+            });
+        }
 
         // 生成5公里闭环路线（外滩→陆家嘴→外滩）
         function generateCityFeetRoute() {
+            if (typeof AMap === 'undefined') {
+                alert('地图加载失败，请检查高德API配置');
+                return;
+            }
+            
             AMap.service(['AMap.RoutePlanning'], function() {
                 const driving = new AMap.RoutePlanning({
                     map: map,
                     city: '上海',
                     panel: 'route-panel',
-                    policy: 1 // 最短时间策略
+                    policy: 1
                 });
                 
-                // 路线点坐标 (外滩→陆家嘴→外滩)
-                const start = [121.4737, 31.2304];    // 外滩
-                const via = [121.4900, 31.2350];      // 陆家嘴
-                const end = [121.4737, 31.2304];      // 回到外滩
+                const start = [121.4737, 31.2304];
+                const via = [121.4900, 31.2350];
+                const end = [121.4737, 31.2304];
                 
-                // 生成路线
                 driving.search(
                     start,
                     end,
                     { 
-                        waypoints: [via] // 途经点：陆家嘴
+                        waypoints: [via]
                     }
                 );
                 
-                // 添加安全提示
                 setTimeout(() => {
                     const safetyMsg = document.createElement('div');
                     safetyMsg.className = 'safety-tip';
@@ -254,10 +295,8 @@
             });
         }
 
-        // 点击按钮触发路线生成
         document.getElementById('generate-btn').addEventListener('click', generateCityFeetRoute);
         
-        // 复制推广文案
         document.getElementById('share-btn').addEventListener('click', function() {
             const text = document.getElementById('share-code').textContent;
             navigator.clipboard.writeText(text).then(() => {
@@ -266,7 +305,12 @@
         });
         
         // 自动执行（测试用）
-        setTimeout(generateCityFeetRoute, 1500);
+        setTimeout(function() {
+            if (typeof AMap !== 'undefined') {
+                initMap();
+                setTimeout(generateCityFeetRoute, 1000);
+            }
+        }, 1500);
     </script>
 </body>
 </html>
