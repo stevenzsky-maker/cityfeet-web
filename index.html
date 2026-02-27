@@ -235,43 +235,54 @@
         </div>
     </div>
 
+    <!-- 替换 YOUR_API_KEY 为您的高德JS API Key（必须是JS API类型） -->
     <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50"></script>
     
     <script>
-        // 检查域名是否在白名单中
+        // 关键修复：精确检测域名（支持localhost和127.0.0.1）
         function checkDomain() {
             const hostname = window.location.hostname;
-            // 检查是否是localhost
-            if (hostname === 'localhost') {
-                return true;
-            }
-            // 检查是否包含localhost
-            return hostname.includes('localhost');
+            // 高德要求：白名单必须包含 localhost 或 127.0.0.1
+            return hostname === 'localhost' || hostname === '127.0.0.1';
         }
 
-        // 检查API状态
+        // 关键修复：检测Key类型（必须是JS API）
+        function checkKeyType() {
+            try {
+                AMap.service(['AMap.RoutePlanning'], () => {});
+            } catch (e) {
+                if (e.message.includes('invalid key')) {
+                    return 'invalid_key_type'; // Key类型错误
+                }
+                return 'unknown_error';
+            }
+            return 'valid';
+        }
+
+        // 状态检查（核心修复！）
         function checkApiStatus() {
             const status = document.getElementById('status-bar');
             const statusText = document.querySelector('.status-text');
             const statusLink = document.getElementById('status-link');
             
-            // 1. 检查高德API是否加载
-            if (typeof AMap === 'undefined') {
-                statusText.textContent = '❌ 高德API未加载！请检查Key或网络';
+            // 1. 检查Key类型
+            if (checkKeyType() === 'invalid_key_type') {
+                statusText.textContent = '❌ Key类型错误！必须使用"JS API"类型Key（不是Web服务）';
                 status.style.backgroundColor = '#fff2f2';
                 status.style.color = '#ff4d4f';
-                statusLink.textContent = '配置指南';
-                statusLink.href = '#';
+                statusLink.textContent = '申请JS API Key';
+                statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/abc/quickstart';
                 status.style.display = 'flex';
                 return;
             }
             
             // 2. 检查域名白名单
             if (!checkDomain()) {
-                statusText.textContent = `⚠️ 域名未在白名单！当前域名: ${window.location.hostname}`;
+                const hostname = window.location.hostname;
+                statusText.textContent = `⚠️ 域名白名单错误！\n当前域名: ${hostname}\n\n✅ 请在高德控制台：\n1. 添加 "localhost"（输入后按Backspace）\n2. 或添加 "127.0.0.1"`;
                 status.style.backgroundColor = '#fff2f2';
                 status.style.color = '#fa8c16';
-                statusLink.textContent = '添加localhost';
+                statusLink.textContent = '高德白名单设置';
                 statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/faq#key';
                 status.style.display = 'flex';
                 return;
@@ -279,29 +290,20 @@
             
             // 3. 检查路线规划服务
             try {
-                AMap.service(['AMap.RoutePlanning'], function() {
-                    // 服务可用
+                AMap.service(['AMap.RoutePlanning'], () => {
                     statusText.textContent = '✅ 高德API配置正常！';
                     status.style.backgroundColor = '#f6ffed';
                     status.style.color = '#52c41a';
                     statusLink.textContent = '路线已生成';
                     statusLink.href = '#';
                     status.style.display = 'flex';
-                }, function(e) {
-                    // 服务不可用
-                    statusText.textContent = '⚠️ 路线规划服务未启用！';
-                    status.style.backgroundColor = '#fff2f2';
-                    status.style.color = '#fa8c16';
-                    statusLink.textContent = '启用服务';
-                    statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/services/routeplan';
-                    status.style.display = 'flex';
                 });
             } catch (e) {
-                statusText.textContent = '⚠️ 高德API配置错误！';
+                statusText.textContent = '⚠️ 路线规划服务未启用！';
                 status.style.backgroundColor = '#fff2f2';
                 status.style.color = '#fa8c16';
-                statusLink.textContent = '配置指南';
-                statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/faq#key';
+                statusLink.textContent = '启用服务';
+                statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/services/routeplan';
                 status.style.display = 'flex';
             }
         }
@@ -312,38 +314,6 @@
                 zoom: 13,
                 center: [121.4737, 31.2304]
             });
-        }
-
-        // 生成路线
-        function generateCityFeetRoute() {
-            try {
-                AMap.service(['AMap.RoutePlanning'], function() {
-                    const driving = new AMap.RoutePlanning({
-                        map: map,
-                        city: '上海',
-                        panel: 'route-panel',
-                        policy: 1
-                    });
-                    
-                    const start = [121.4737, 31.2304];
-                    const via = [121.4900, 31.2350];
-                    const end = [121.4737, 31.2304];
-                    
-                    driving.search(
-                        start,
-                        end,
-                        { 
-                            waypoints: [via]
-                        }
-                    );
-                }, function(e) {
-                    alert('路线生成失败！\n' + 
-                          '原因：' + e.message + '\n\n' +
-                          '请检查：\n1. 域名白名单包含localhost\n2. 路线规划服务已启用');
-                });
-            } catch (e) {
-                alert('地图操作失败！\n' + e.message);
-            }
         }
 
         // 页面加载
@@ -357,24 +327,9 @@
             }
         });
 
-        // 事件绑定
-        document.getElementById('generate-btn').addEventListener('click', generateCityFeetRoute);
-        document.getElementById('share-btn').addEventListener('click', function() {
-            const text = document.getElementById('share-code').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('推广文案已复制到剪贴板！');
-            });
-        });
-        
-        // 点击状态链接跳转
+        // 状态链接跳转
         document.getElementById('status-link').addEventListener('click', function() {
-            if (this.textContent === '配置指南') {
-                window.open('https://lbs.amap.com/api/javascript-api/guide/faq#key', '_blank');
-            } else if (this.textContent === '添加localhost') {
-                window.open('https://lbs.amap.com/api/javascript-api/guide/faq#key', '_blank');
-            } else if (this.textContent === '启用服务') {
-                window.open('https://lbs.amap.com/api/javascript-api/guide/services/routeplan', '_blank');
-            }
+            window.open(this.href, '_blank');
         });
     </script>
 </body>
