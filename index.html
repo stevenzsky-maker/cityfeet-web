@@ -29,36 +29,45 @@
         .header {
             background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
             padding: 25px 30px;
-            text-align: center;
+            text-align: left; /* 左对齐 */
             color: white;
             position: relative;
         }
         
-        /* 标题Logo + 文字布局 */
+        /* 标题Logo + 文字布局 - 左对齐 */
         .logo {
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 16px; /* 图片与文字间距 */
+            gap: 16px;
+            margin-left: 30px; /* 与header padding-left一致，确保与地图左侧平齐 */
         }
         
-        /* 自定义Logo图片样式 */
+        /* 自定义Logo图片样式 - 已调整为80x80 */
         .header-logo {
-            width: 150px;
-            height: 150px;
-            object-fit: contain; /* 保证内容完整，不裁剪、不变形 */
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
             background: transparent;
         }
         
-        .header-subtitle {
-            font-size: 16px;
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-main {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-sub {
+            font-size: 14px;
             opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-top: 4px;
         }
         
         /* 地图容器 */
@@ -198,12 +207,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <!-- 使用您的图片作为Logo，放在标题左边 -->
+            <!-- 修改后的Logo，80x80，右侧两行文字，左对齐 -->
             <div class="logo">
                 <img src="images/logo.jpg" alt="CityFeet" class="header-logo">
-                <span>CityFeet</span>
+                <div class="logo-text">
+                    <div class="logo-main">CityFeet</div>
+                    <div class="logo-sub">脚步丈量大地，享受城市烟火</div>
+                </div>
             </div>
-            <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
         </div>
 
         <div class="status-bar" id="status-bar">
