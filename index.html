@@ -76,7 +76,7 @@
             min-height: 500px; /* 防止高度为0 */
         }
         
-        /* 状态栏样式 */
+        /* 状态栏样式（默认隐藏） */
         .status-bar {
             background: #fff2f2;
             color: #ff4d4f;
@@ -85,7 +85,7 @@
             text-align: center;
             border-bottom: 1px solid #f0f0f0;
             font-weight: 500;
-            display: flex;
+            display: none; /* 默认隐藏 */
             align-items: center;
             justify-content: space-between;
         }
@@ -226,13 +226,13 @@
             <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
         </div>
 
-        <!-- 状态栏：显示API加载状态 -->
+        <!-- 状态栏：默认隐藏，仅在API加载失败时显示 -->
         <div class="status-bar" id="status-bar">
-            <div class="status-text">正在检查高德API配置...</div>
+            <div class="status-text">❌ 高德API加载失败！请检查Key和网络</div>
             <div class="status-link" id="status-link">配置指南</div>
         </div>
         
-        <!-- 地图容器：必须有固定高度 -->
+        <!-- 地图容器 -->
         <div class="map-container" id="map-container"></div>
         
         <!-- 信息面板 -->
@@ -274,98 +274,76 @@
         </div>
     </div>
 
-    <!-- 高德地图API加载：关键点 - 使用正确的Key -->
-    <!-- 注意：这里移除了 onload/onerror，改用 callback 参数 -->
+    <!-- 高德地图API（使用 callback 方式加载） -->
     <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50&callback=onMapLoaded"></script>
     
     <script>
-        // 状态跟踪变量
-        let apiLoaded = false;  // 标记API是否加载成功
-        
-        // API加载成功回调（由高德API调用）
+        let apiLoaded = false;
+
+        // 高德API加载成功回调
         function onMapLoaded() {
-            console.log('✅ 高德API加载成功');
             apiLoaded = true;
-            updateStatus(true);
-            initMap();  // 立即初始化地图
+            initMap();
         }
-        
-        // API加载失败处理（通过超时检测）
+
+        // 10秒超时检测（防止卡住）
         setTimeout(() => {
             if (!apiLoaded) {
-                console.error('❌ 高德API加载超时');
-                updateStatus(false);
+                showApiError();
             }
-        }, 10000); // 10秒超时
-        
-        // 更新状态栏显示
-        function updateStatus(success) {
+        }, 10000);
+
+        // 显示API错误状态栏
+        function showApiError() {
             const status = document.getElementById('status-bar');
-            const statusText = document.querySelector('.status-text');
-            const statusLink = document.getElementById('status-link');
-            
-            if (success) {
-                statusText.textContent = '✅ 高德API已加载！地图正常显示';
-                status.style.backgroundColor = '#f6ffed';
-                status.style.color = '#52c41a';
-                statusLink.textContent = '地图已加载';
-                statusLink.href = '#';
-            } else {
-                statusText.textContent = '❌ 高德API加载失败！请检查Key和网络';
-                status.style.backgroundColor = '#fff2f2';
-                status.style.color = '#ff4d4f';
-                statusLink.textContent = '配置指南';
-                statusLink.href = 'https://lbs.amap.com/api/javascript-api/guide/abc/quickstart';
-            }
+            const link = document.getElementById('status-link');
+            status.style.display = 'flex';
+            link.href = 'https://lbs.amap.com/api/javascript-api/guide/abc/quickstart';
         }
-        
+
         // 初始化地图
         function initMap() {
             try {
-                // 创建地图实例
                 const map = new AMap.Map('map-container', {
-                    zoom: 13,  // 地图缩放级别
-                    center: [121.4737, 31.2304]  // 上海外滩中心坐标
+                    zoom: 13,
+                    center: [121.4737, 31.2304] // 上海外滩
                 });
-                
-                // 添加标记点（可选）
+
+                // 可选：添加标记
                 const marker = new AMap.Marker({
                     position: [121.4737, 31.2304],
                     title: '上海外滩'
                 });
                 map.add(marker);
-                
-                console.log('🗺️ 地图初始化成功');
-            } catch (error) {
-                console.error('地图初始化失败:', error);
-                updateStatus(false);
+            } catch (e) {
+                console.error('地图初始化失败:', e);
+                showApiError();
             }
         }
 
-        // 复制分享文案功能
-        document.getElementById('share-btn').addEventListener('click', function() {
-            const shareCode = document.getElementById('share-code').innerText;
-            navigator.clipboard.writeText(shareCode).then(() => {
-                alert('文案已复制到剪贴板！');
-            }).catch(err => {
-                console.error('复制失败:', err);
-                // 兼容性处理
+        // 复制分享文案
+        document.getElementById('share-btn')?.addEventListener('click', function() {
+            const text = document.getElementById('share-code').innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('文案已复制！');
+                });
+            } else {
+                // 兼容旧浏览器
                 const textarea = document.createElement('textarea');
-                textarea.value = shareCode;
+                textarea.value = text;
                 document.body.appendChild(textarea);
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                alert('文案已复制到剪贴板！');
-            });
+                alert('文案已复制！');
+            }
         });
 
-        // 状态链接点击事件
-        document.getElementById('status-link').addEventListener('click', function(e) {
-            if (this.href !== '#') {
-                e.preventDefault();
-                window.open(this.href, '_blank');
-            }
+        // 状态链接点击
+        document.getElementById('status-link')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank');
         });
     </script>
 </body>
