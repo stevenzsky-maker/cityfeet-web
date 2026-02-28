@@ -14,6 +14,19 @@
             min-height: 100vh;
             padding: 20px;
         }
+
+        /* 左上角Logo样式 */
+        .corner-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
         
         /* 页面容器样式 */
         .container {
@@ -23,6 +36,8 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
+            /* 为避免被左上角图片遮挡，顶部增加一点偏移（可选） */
+            margin-top: 20px;
         }
         
         /* 顶部标题栏样式 */
@@ -66,17 +81,17 @@
             margin: 0 auto;
         }
         
-        /* 地图容器 - 关键：必须有固定高度 */
+        /* 地图容器 */
         .map-container {
             width: 100%;
-            height: 500px; /* 必须设置固定高度 */
+            height: 500px;
             border-radius: 0 0 16px 16px;
             overflow: hidden;
             margin-bottom: 25px;
-            min-height: 500px; /* 防止高度为0 */
+            min-height: 500px;
         }
         
-        /* 状态栏样式（默认隐藏） */
+        /* 状态栏（仅失败时显示） */
         .status-bar {
             background: #fff2f2;
             color: #ff4d4f;
@@ -85,7 +100,7 @@
             text-align: center;
             border-bottom: 1px solid #f0f0f0;
             font-weight: 500;
-            display: none; /* 默认隐藏 */
+            display: none;
             align-items: center;
             justify-content: space-between;
         }
@@ -101,7 +116,7 @@
             margin-left: 10px;
         }
         
-        /* 信息面板样式 */
+        /* 信息面板 */
         .info-panel {
             background: white;
             padding: 25px;
@@ -134,7 +149,7 @@
             font-size: 15px;
         }
         
-        /* 按钮样式 */
+        /* 按钮 */
         .btn {
             background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
             color: white;
@@ -156,7 +171,7 @@
             box-shadow: 0 6px 16px rgba(24, 144, 255, 0.35);
         }
         
-        /* 页脚样式 */
+        /* 页脚 */
         .footer {
             text-align: center;
             padding: 20px;
@@ -166,23 +181,7 @@
             background: #fafafa;
         }
         
-        /* 分享按钮样式 */
-        .share-btn {
-            background: #1890ff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        
-        .share-btn:hover {
-            background: #40a9ff;
-        }
-        
-        /* 分享区域样式 */
+        /* 分享区域 */
         .share-section {
             background: #f9f9f9;
             padding: 20px;
@@ -217,6 +216,9 @@
     </style>
 </head>
 <body>
+    <!-- 左上角图片（请替换 your-image.jpg 为实际文件名） -->
+    <img src="images/logo.jpg" alt="CityFeet Logo" class="corner-logo">
+
     <div class="container">
         <div class="header">
             <div class="logo">
@@ -226,16 +228,13 @@
             <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
         </div>
 
-        <!-- 状态栏：默认隐藏，仅在API加载失败时显示 -->
         <div class="status-bar" id="status-bar">
             <div class="status-text">❌ 高德API加载失败！请检查Key和网络</div>
             <div class="status-link" id="status-link">配置指南</div>
         </div>
         
-        <!-- 地图容器 -->
         <div class="map-container" id="map-container"></div>
         
-        <!-- 信息面板 -->
         <div class="info-panel">
             <div class="info-title">📍 当前路线：上海外滩5公里环线</div>
             <p>为您生成安全闭环路线，全程江景+历史建筑，避开施工区</p>
@@ -274,26 +273,23 @@
         </div>
     </div>
 
-    <!-- 高德地图API（使用 callback 方式加载） -->
+    <!-- 高德地图API -->
     <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50&callback=onMapLoaded"></script>
     
     <script>
         let apiLoaded = false;
 
-        // 高德API加载成功回调
         function onMapLoaded() {
             apiLoaded = true;
             initMap();
         }
 
-        // 10秒超时检测（防止卡住）
         setTimeout(() => {
             if (!apiLoaded) {
                 showApiError();
             }
         }, 10000);
 
-        // 显示API错误状态栏
         function showApiError() {
             const status = document.getElementById('status-bar');
             const link = document.getElementById('status-link');
@@ -301,15 +297,13 @@
             link.href = 'https://lbs.amap.com/api/javascript-api/guide/abc/quickstart';
         }
 
-        // 初始化地图
         function initMap() {
             try {
                 const map = new AMap.Map('map-container', {
                     zoom: 13,
-                    center: [121.4737, 31.2304] // 上海外滩
+                    center: [121.4737, 31.2304]
                 });
 
-                // 可选：添加标记
                 const marker = new AMap.Marker({
                     position: [121.4737, 31.2304],
                     title: '上海外滩'
@@ -321,7 +315,6 @@
             }
         }
 
-        // 复制分享文案
         document.getElementById('share-btn')?.addEventListener('click', function() {
             const text = document.getElementById('share-code').innerText;
             if (navigator.clipboard) {
@@ -329,7 +322,6 @@
                     alert('文案已复制！');
                 });
             } else {
-                // 兼容旧浏览器
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
@@ -340,7 +332,6 @@
             }
         });
 
-        // 状态链接点击
         document.getElementById('status-link')?.addEventListener('click', function(e) {
             e.preventDefault();
             window.open(this.href, '_blank');
