@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>高德地图测试</title>
+</head>
+<body>
+    <div id="container" style="width: 600px; height: 400px;"></div>
+    
+    <!-- 加载高德地图API -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=8f6c20dd24f372fefff3c5c3b1eaf1f5"></script>
+    
+    <script>
+        // 初始化地图
+        const map = new AMap.Map('container', {
+            zoom: 10,
+            center: [116.397428, 39.90923]
+        });
+        
+        // 检查是否加载成功
+        if (window.AMap) {
+            console.log('✅ 高德地图加载成功！');
+            console.log('地图实例:', map);
+        } else {
+            console.error('❌ 高德地图加载失败');
+        }
+    </script>
+</body>
+</html>
