@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>CityFeet - 出差城市跑步助手</title>
-    <!-- 高德地图 API（已使用您之前的 Key） -->
+    <!-- 重要：请确保此Key已配置在高德开放平台！ -->
     <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50&callback=initMap"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,6 +11,7 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: #f5f7fa;
             color: #333;
+            min-height: 100vh;
         }
 
         .container {
@@ -214,46 +215,43 @@
             height: 100%;
         }
 
-        /* 提示气泡 */
-        .tip {
+        /* 地图加载失败提示 */
+        .map-error {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-size: 14px;
-            color: #333;
-            z-index: 1000;
-        }
-
-        /* 地图控件 */
-        .map-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-        }
-
-        .map-controls button {
-            background: white;
-            border: 1px solid #ddd;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            margin-bottom: 10px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-size: 18px;
-            color: #333;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .map-controls button:last-child {
-            margin-bottom: 0;
+        .error-title {
+            font-size: 24px;
+            color: #ff4d4f;
+            margin-bottom: 15px;
+        }
+
+        .error-desc {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            max-width: 500px;
+        }
+
+        .error-tip {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            text-align: left;
         }
 
         /* 响应式调整 */
@@ -345,19 +343,30 @@
             <!-- 右侧：高德地图 -->
             <div class="map-container">
                 <div id="map"></div>
-                <div class="tip">点击地图标记查看路线详情</div>
-                <div class="map-controls">
-                    <button>📍</button>
-                    <button>🔄</button>
-                    <button>+</button>
-                    <button>-</button>
+                <!-- 地图加载失败时显示的提示 -->
+                <div class="map-error" id="map-error" style="display: none;">
+                    <div class="error-title">地图加载失败</div>
+                    <div class="error-desc">
+                        请检查高德Key配置和网络连接
+                    </div>
+                    <div class="error-tip">
+                        <strong>常见原因：</strong>
+                        <br>1. 高德Key未在开放平台配置域名白名单
+                        <br>2. Key已过期或被禁用
+                        <br>3. 本地开发未添加 localhost 到白名单
+                        <br><br>
+                        <strong>解决方案：</strong>
+                        <br>1. 登录 <a href="https://lbs.amap.com/api/javascript-api/guide/abc/quickstart" target="_blank">高德开放平台</a>
+                        <br>2. 在 "Key管理" 中添加域名：`localhost`, `127.0.0.1`
+                        <br>3. 确保Key未过期（有效期3年）
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 高德地图初始化函数
+        // 高德地图初始化
         function initMap() {
             try {
                 // 创建地图实例
@@ -376,7 +385,7 @@
                 });
                 map.add(cityMarker);
 
-                // 添加路线标记（模拟数据）
+                // 添加路线标记
                 const routeMarkers = [
                     { pos: [113.545, 22.218], title: '外滩环线', icon: '📍' },
                     { pos: [113.550, 22.212], title: '横琴生态', icon: '🌿' },
@@ -393,33 +402,24 @@
                     map.add(m);
                 });
 
-                // 地图点击事件
-                map.on('click', function(e) {
-                    alert(`已选中坐标: ${e.lnglat.lng}, ${e.lnglat.lat}`);
-                });
+                // 隐藏错误提示
+                document.getElementById('map-error').style.display = 'none';
 
             } catch (e) {
                 console.error('地图初始化失败', e);
-                document.body.innerHTML = `
-                    <div style="text-align: center; padding: 50px; color: #ff4d4f;">
-                        <h2>地图加载失败</h2>
-                        <p>请检查高德Key配置和网络连接</p>
-                        <p>错误信息: ${e.message}</p>
-                    </div>
-                `;
+                showMapError();
             }
         }
 
-        // 防止高德API加载超时
+        // 显示地图加载失败提示
+        function showMapError() {
+            document.getElementById('map-error').style.display = 'flex';
+        }
+
+        // 10秒后检查地图是否加载成功
         setTimeout(() => {
-            if (typeof AMap === 'undefined') {
-                document.body.innerHTML = `
-                    <div style="text-align: center; padding: 50px; color: #ff4d4f;">
-                        <h2>高德地图加载超时</h2>
-                        <p>请检查网络连接或Key配置</p>
-                        <p>Key: e3418a2006816f412deec04d3e4d3d50</p>
-                    </div>
-                `;
+            if (typeof AMap === 'undefined' || document.getElementById('map').children.length === 0) {
+                showMapError();
             }
         }, 10000);
     </script>
