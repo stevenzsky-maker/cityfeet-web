@@ -14,19 +14,6 @@
             min-height: 100vh;
             padding: 20px;
         }
-
-        /* 左上角Logo样式 */
-        .corner-logo {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-        }
         
         /* 页面容器样式 */
         .container {
@@ -36,8 +23,6 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            /* 为避免被左上角图片遮挡，顶部增加一点偏移（可选） */
-            margin-top: 20px;
         }
         
         /* 顶部标题栏样式 */
@@ -49,7 +34,7 @@
             position: relative;
         }
         
-        /* 标题图标和文字样式 */
+        /* 标题Logo + 文字布局 */
         .logo {
             font-size: 28px;
             font-weight: bold;
@@ -58,20 +43,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 16px; /* 图片与文字间距 */
         }
         
-        .logo-icon {
-            background: #1890ff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
+        /* 自定义Logo图片样式 */
+        .header-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain; /* 保证内容完整，不裁剪、不变形 */
+            background: transparent;
         }
         
         .header-subtitle {
@@ -216,13 +196,11 @@
     </style>
 </head>
 <body>
-    <!-- 左上角图片（请替换 your-image.jpg 为实际文件名） -->
-    <img src="images/logo.jpg" alt="CityFeet Logo" class="corner-logo">
-
     <div class="container">
         <div class="header">
+            <!-- 使用您的图片作为Logo，放在标题左边 -->
             <div class="logo">
-                <div class="logo-icon">C</div>
+                <img src="images/your-logo.jpg" alt="CityFeet" class="header-logo">
                 <span>CityFeet</span>
             </div>
             <div class="header-subtitle">出差第一公里，5公里安全城市探索</div>
