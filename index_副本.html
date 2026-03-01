@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>CityFeet - 出差城市跑步助手</title>
+    <style>
+        /* 重置所有元素的margin和padding，确保布局一致 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* 设置全局背景和字体 */
+        body { 
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* 页面容器样式 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        /* 顶部标题栏样式 */
+        .header {
+            background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
+            padding: 25px 30px;
+            text-align: left; /* 左对齐 */
+            color: white;
+            position: relative;
+        }
+        
+        /* 标题Logo + 文字布局 - 左对齐 */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: 30px; /* 与header padding-left一致，确保与地图左侧平齐 */
+        }
+        
+        /* 自定义Logo图片样式 - 已调整为80x80 */
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            background: transparent;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-main {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-sub {
+            font-size: 14px;
+            opacity: 0.9;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-top: 4px;
+        }
+        
+        /* 地图容器 */
+        .map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 0 0 16px 16px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            min-height: 500px;
+        }
+        
+        /* 状态栏（仅失败时显示） */
+        .status-bar {
+            background: #fff2f2;
+            color: #ff4d4f;
+            padding: 12px 25px;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .status-link {
+            color: #1890ff;
+            text-decoration: underline;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        /* 信息面板 */
+        .info-panel {
+            background: white;
+            padding: 25px;
+            border-top: 1px solid #f0f2f5;
+        }
+        
+        .info-title {
+            font-size: 20px;
+            color: #1890ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .safety-tip {
+            background: #fff8e6;
+            border-left: 4px solid #faad14;
+            padding: 15px;
+            border-radius: 0 4px 4px 0;
+            margin: 15px 0;
+            font-size: 15px;
+        }
+        
+        .route-info {
+            background: #e6f7ff;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 15px;
+        }
+        
+        /* 按钮 */
+        .btn {
+            background: linear-gradient(120deg, #1890ff 0%, #40a9ff 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 500;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
+        }
+        
+        .btn:hover {
+            background: linear-gradient(120deg, #0d75d1 0%, #2c91e3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(24, 144, 255, 0.35);
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #8c939d;
+            font-size: 14px;
+            border-top: 1px solid #f0f2f5;
+            background: #fafafa;
+        }
+        
+        /* 分享区域 */
+        .share-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-top: 1px dashed #e8e8e8;
+        }
+        
+        .share-title {
+            font-weight: bold;
+            color: #1890ff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .share-content {
+            line-height: 1.6;
+            color: #333;
+            font-size: 15px;
+        }
+        
+        .share-code {
+            background: #f0f5ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- 修改后的Logo，80x80，右侧两行文字，左对齐 -->
+            <div class="logo">
+                <img src="images/logo.jpg" alt="CityFeet" class="header-logo">
+                <div class="logo-text">
+                    <div class="logo-main">CityFeet</div>
+                    <div class="logo-sub">跑过街巷，遇见城市心跳</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar" id="status-bar">
+            <div class="status-text">❌ 高德API加载失败！请检查Key和网络</div>
+            <div class="status-link" id="status-link">配置指南</div>
+        </div>
+        
+        <div class="map-container" id="map-container"></div>
+        
+        <div class="info-panel">
+            <div class="info-title">📍 当前路线：上海外滩5公里环线</div>
+            <p>为您生成安全闭环路线，全程江景+历史建筑，避开施工区</p>
+            
+            <div class="safety-tip">
+                ⚠️ 本路线已自动避开施工区域，全程人行道安全通行
+            </div>
+            
+            <div class="route-info">
+                <strong>距离：</strong>4.8公里 | <strong>时间：</strong>约55分钟 | <strong>特色：</strong>外滩江景+历史建筑
+            </div>
+            
+            <button class="btn" id="generate-btn">生成我的路线</button>
+            
+            <div class="share-section">
+                <div class="share-title">✨ 分享到小红书</div>
+                <div class="share-content">
+                    出差第一站，用CityFeet一键生成5公里安全环线！
+                    <br>外滩→陆家嘴→外滩，全程江景+避开施工，10分钟搞定！
+                    <br>👉 点击生成你的专属路线 ↓
+                </div>
+                <button class="share-btn" id="share-btn">
+                    复制推广文案
+                </button>
+                <div class="share-code" id="share-code">
+#CityFeet #出差跑步 #城市漫步
+出差第一站，用CityFeet一键生成5公里安全环线！
+外滩→陆家嘴→外滩，全程江景+避开施工，10分钟搞定！
+👉 点击生成你的专属路线：https://cityfeet.cn
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>CityFeet · 专注差旅城市探索 · 基于高德地图API | 2026</p>
+        </div>
+    </div>
+
+    <!-- 高德地图API -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=e3418a2006816f412deec04d3e4d3d50&callback=onMapLoaded"></script>
+    
+    <script>
+        let apiLoaded = false;
+
+        function onMapLoaded() {
+            apiLoaded = true;
+            initMap();
+        }
+
+        setTimeout(() => {
+            if (!apiLoaded) {
+                showApiError();
+            }
+        }, 10000);
+
+        function showApiError() {
+            const status = document.getElementById('status-bar');
+            const link = document.getElementById('status-link');
+            status.style.display = 'flex';
+            link.href = 'https://lbs.amap.com/api/javascript-api/guide/abc/quickstart';
+        }
+
+        function initMap() {
+            try {
+                const map = new AMap.Map('map-container', {
+                    zoom: 13,
+                    center: [121.4737, 31.2304]
+                });
+
+                const marker = new AMap.Marker({
+                    position: [121.4737, 31.2304],
+                    title: '上海外滩'
+                });
+                map.add(marker);
+            } catch (e) {
+                console.error('地图初始化失败:', e);
+                showApiError();
+            }
+        }
+
+        document.getElementById('share-btn')?.addEventListener('click', function() {
+            const text = document.getElementById('share-code').innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('文案已复制！');
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('文案已复制！');
+            }
+        });
+
+        document.getElementById('status-link')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank');
+        });
+    </script>
+</body>
+</html>
