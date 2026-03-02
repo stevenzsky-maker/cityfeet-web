@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>CityFeet - 步履无界，跑遍城隅</title>
 <style>
 * {
@@ -17,7 +17,7 @@ body {
   background: #fff;
 }
 
-/* ====================== 顶部导航栏（参考 komoot） ====================== */
+/* ====================== 顶部导航栏（新增移动端菜单按钮） ====================== */
 header {
   height: 56px;
   background: #fff;
@@ -30,16 +30,36 @@ header {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-/* 左侧 Logo + 活动类型 */
+/* 左侧 Logo + 活动类型 + 移动端菜单按钮 */
 .header-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+/* 移动端专属：侧边栏呼出按钮 */
+.menu-toggle {
+  display: none; /* PC端隐藏 */
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  padding: 4px;
+}
+
 .logo {
   height: 32px;
   width: auto;
+  /* 防止logo缺失导致布局错乱 */
+  min-width: 80px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #2d7d46;
 }
 
 .activity-selector {
@@ -56,16 +76,12 @@ header {
 .activity-selector:hover {
   background: #f5f5f5;
 }
-.activity-icon {
-  width: 18px;
-  height: 18px;
-}
 
 /* 中间搜索框 */
 .header-center {
   flex: 1;
   max-width: 500px;
-  margin: 0 24px;
+  margin: 0 16px;
 }
 
 .search-box {
@@ -87,7 +103,7 @@ header {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .nav-link {
@@ -105,7 +121,7 @@ header {
   background: #f5e8d5;
   color: #9a6b37;
   border: none;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
@@ -113,15 +129,12 @@ header {
   align-items: center;
   gap: 6px;
 }
-.btn-app:hover {
-  background: #f0d9b5;
-}
 
 .btn-login {
   background: #2d7d46;
   color: #fff;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
@@ -131,31 +144,34 @@ header {
   background: #256838;
 }
 
-/* ====================== 左侧固定菜单（替换为图片中的查找跑步路线） ====================== */
+/* ====================== 左侧侧边栏（适配移动端滑动） ====================== */
 .sidebar {
   position: absolute;
   top: 56px;
   left: 0;
-  width: 360px;
+  width: 320px; /* 优化默认宽度，更适合手机 */
   height: calc(100vh - 56px);
   background: #fff;
   border-right: 1px solid #e5e5e5;
   z-index: 998;
   overflow-y: auto;
-  padding: 20px;
+  padding: 20px 16px;
   border-radius: 0 12px 12px 0;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+  /* 移动端过渡动画 */
+  transition: transform 0.3s ease;
 }
 
+/* ====================== 表单样式（优化手机触控） ====================== */
 .sidebar-header {
   font-size: 18px;
   font-weight: 600;
   color: #222;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
@@ -169,10 +185,10 @@ header {
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 16px; /* 增大内边距，方便手机点击 */
   border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 16px; /* 增大字体，手机上更易读 */
   background: #fff;
 }
 
@@ -186,15 +202,16 @@ header {
 
 .btn-find-route {
   width: 100%;
-  padding: 14px;
+  padding: 16px; /* 增大按钮高度 */
   background: #2185d0;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  margin: 20px 0;
+  margin: 20px 0 30px 0;
+  box-shadow: 0 2px 4px rgba(33, 133, 208, 0.3);
 }
 .btn-find-route:hover {
   background: #1678c2;
@@ -210,17 +227,17 @@ header {
 #map {
   position: absolute;
   top: 56px;
-  left: 360px;
-  width: calc(100vw - 360px);
+  left: 320px; /* 对应侧边栏宽度 */
+  width: calc(100vw - 320px);
   height: calc(100vh - 56px);
   z-index: 1;
 }
 
-/* ====================== 地图右上角操作栏（参考 komoot） ====================== */
+/* ====================== 地图右上角操作栏 ====================== */
 .map-controls {
   position: absolute;
   top: 72px;
-  right: 20px;
+  right: 12px;
   z-index: 998;
   display: flex;
   flex-direction: column;
@@ -240,11 +257,8 @@ header {
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.map-btn:hover {
-  background: #f5f5f5;
-}
 
-/* ====================== 提示气泡 ====================== */
+/* ====================== 底部提示 ====================== */
 .tooltip {
   position: absolute;
   bottom: 20px;
@@ -259,31 +273,44 @@ header {
   z-index: 998;
 }
 
-/* ====================== 移动端适配 ====================== */
-@media (max-width: 1024px) {
-  .sidebar {
-    width: 300px;
-  }
-  #map {
-    left: 300px;
-    width: calc(100vw - 300px);
-  }
-}
-
+/* ====================== 移动端适配 (核心修改) ====================== */
 @media (max-width: 768px) {
+  /* 1. 显示移动端菜单按钮 */
+  .menu-toggle {
+    display: block;
+  }
+
+  /* 2. 隐藏PC端的导航链接，节省空间 */
   .header-right .nav-link {
     display: none;
   }
+
+  /* 3. 调整按钮大小，适配手机 */
+  .btn-app, .btn-login {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /* 4. 侧边栏默认隐藏（向左偏移） */
   .sidebar {
     transform: translateX(-100%);
-    transition: transform 0.3s;
+    width: 280px; /* 手机上适当变窄 */
   }
-  .sidebar.open {
+
+  /* 5. 激活时显示侧边栏 */
+  .sidebar.active {
     transform: translateX(0);
   }
+
+  /* 6. 地图占满全屏 */
   #map {
     left: 0;
     width: 100vw;
+  }
+
+  /* 7. 隐藏底部英文提示，手机空间宝贵 */
+  .tooltip {
+    display: none;
   }
 }
 </style>
@@ -293,7 +320,11 @@ header {
 <!-- 顶部导航栏 -->
 <header>
   <div class="header-left">
-    <img src="images/logo.jpg" class="logo" alt="CityFeet Logo">
+    <!-- 移动端菜单按钮 -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    
+    <div class="logo">CityFeet</div>
+    
     <div class="activity-selector">
       <span class="activity-icon">🏃</span>
       <span>跑步</span>
@@ -309,17 +340,16 @@ header {
     <a href="#" class="nav-link">Routes</a>
     <a href="#" class="nav-link">Planner</a>
     <a href="#" class="nav-link">Features</a>
-    <a href="#" class="nav-link">Updates</a>
     <button class="btn-app">
       <span>📱</span>
       <span>App</span>
     </button>
-    <button class="btn-login">Login or Signup</button>
+    <button class="btn-login">登录</button>
   </div>
 </header>
 
-<!-- 左侧固定菜单（替换为图片中的查找跑步路线表单） -->
-<div class="sidebar">
+<!-- 左侧侧边栏 -->
+<div class="sidebar" id="sidebar">
   <div class="sidebar-header">查找跑步路线</div>
 
   <div class="form-group">
@@ -330,7 +360,7 @@ header {
   <div class="form-group">
     <label>路线长度</label>
     <select>
-      <option>短途 2–3公里</option>
+      <option selected>短途 2–3公里</option>
       <option>中程 5–8公里</option>
       <option>长距离 10公里+</option>
     </select>
@@ -339,7 +369,7 @@ header {
   <div class="form-group">
     <label>路线类型</label>
     <select>
-      <option>城市道路</option>
+      <option selected>城市道路</option>
       <option>公园绿道</option>
       <option>滨江/滨海</option>
     </select>
@@ -370,7 +400,23 @@ header {
 <script>
 let map = null;
 
-// 动态加载高德地图
+// --- 移动端侧边栏交互逻辑 ---
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+
+// 点击菜单按钮切换侧边栏
+menuToggle.addEventListener('click', function() {
+  sidebar.classList.toggle('active');
+});
+
+// 点击"查找跑步路线"按钮后，在手机上自动收起侧边栏（优化体验）
+document.querySelector('.btn-find-route').addEventListener('click', function() {
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove('active');
+  }
+});
+
+// --- 高德地图加载逻辑 ---
 function loadAMap() {
   return new Promise((resolve, reject) => {
     if (window.AMap) return resolve(window.AMap);
@@ -382,13 +428,12 @@ function loadAMap() {
   });
 }
 
-// 初始化地图
 async function init() {
   try {
     const AMap = await loadAMap();
     map = new AMap.Map("map", {
       zoom: 13,
-      center: [113.55, 22.25], // 珠海坐标，和示例图一致
+      center: [113.55, 22.25], // 珠海坐标
       mapStyle: 'amap://styles/light',
       resizeEnable: true
     });
