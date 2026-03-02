@@ -1,8 +1,5 @@
-// config.js - 网站配置文件
-const APP_CONFIG = {
-    // 高德地图API Key（替换成你自己的）
-    AMAP_KEY: "e3418a2006816f412deec04d3e4d3d50",
-    // 可扩展其他配置
-    SITE_NAME: "CityFeet",
-    VERSION: "1.0.0"
+// config.js 文件（和 HTML 文件同目录）
+window.APP_CONFIG = {
+  // 把下面的字符串替换成你自己的高德地图 Web 端 Key
+  AMAP_KEY: "e3418a2006816f412deec04d3e4d3d50"
 };

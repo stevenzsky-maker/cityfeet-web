@@ -5,141 +5,370 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CityFeet - 步履无界，跑遍城隅</title>
 <style>
-/* 全局重置 */
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif}
-body{min-height:100vh;overflow:hidden; /* 去掉滚动条，让地图铺满 */}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
 
-/* 头部样式 - 悬浮在地图上方 */
-header{position:absolute;top:15px;left:15px;z-index:100;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
-.logo{width:36px;height:36px;border-radius:6px;object-fit:cover;}
-.header-text h1{font-size:16px;color:#2c3e50;margin-bottom:2px;}
-.slogan{font-size:10px;color:#666;font-style:italic;}
+body {
+  overflow: hidden;
+  background: #fff;
+}
 
-/* 悬浮菜单 - 缩小尺寸+悬浮在地图右侧 */
-.sidebar{position:absolute;top:80px;right:15px;z-index:100;width:260px; /* 缩小宽度 */
-  background:rgba(255,255,255,0.95);padding:12px; /* 缩小内边距 */
-  border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);backdrop-filter:blur(5px);}
-.sidebar-title{font-size:14px; /* 缩小标题 */
-  margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e5e9f0;color:#2c3e50;}
+/* ====================== 顶部导航栏（参考 komoot） ====================== */
+header {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: relative;
+  z-index: 999;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
 
-/* 表单样式 - 整体缩小 */
-.form-group{margin-bottom:8px;}
-label{display:block;margin-bottom:4px;font-weight:600;color:#333;font-size:12px; /* 缩小标签 */}
-input,select{width:100%;padding:6px 8px; /* 缩小输入框内边距 */
-  border:1px solid #ddd;border-radius:4px;font-size:12px; /* 缩小输入框文字 */
-  background:rgba(255,255,255,0.8);}
-button{width:100%;padding:7px; /* 缩小按钮 */
-  background:#3498db;color:white;border:none;border-radius:4px;font-size:12px; /* 缩小按钮文字 */
-  font-weight:600;cursor:pointer;margin-top:4px;}
-button:hover{background:#2980b9;}
+/* 左侧 Logo + 活动类型 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-/* 路线列表 - 缩小 */
-.route-list{margin-top:10px;}
-.route-list-title{font-size:12px;margin-bottom:6px;font-weight:600;color:#2c3e50;}
-.route-item{padding:8px; /* 缩小路线项 */
-  background:#f8f9fa;border-left:3px solid #3498db;margin-bottom:6px;border-radius:4px;}
-.route-item h3{font-size:12px;margin-bottom:2px;}
-.route-item p{font-size:11px;color:#666;line-height:1.3;}
+.logo {
+  height: 32px;
+  width: auto;
+}
 
-/* 地图铺满全屏 */
-#map{position:absolute;top:0;left:0;width:100vw;height:100vh;z-index:1;}
+.activity-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+.activity-selector:hover {
+  background: #f5f5f5;
+}
+.activity-icon {
+  width: 18px;
+  height: 18px;
+}
 
-/* 底部版权 - 悬浮显示 */
-footer{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);z-index:100;
-  background:rgba(255,255,255,0.9);padding:6px 15px;border-radius:20px;}
-.copyright{font-size:11px;color:#666;}
+/* 中间搜索框 */
+.header-center {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 24px;
+}
 
-/* 移动端适配 */
-@media(max-width:768px){
-  .sidebar{width:220px;top:70px;right:10px;padding:10px;}
-  header{top:10px;left:10px;padding:6px 12px;}
-  .logo{width:30px;height:30px;}
-  .header-text h1{font-size:14px;}
-  .slogan{font-size:9px;}
+.search-box {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+.search-box:focus {
+  outline: none;
+  border-color: #3498db;
+  background: #fff;
+}
+
+/* 右侧导航链接 + 按钮 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-link {
+  font-size: 14px;
+  color: #333;
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.nav-link:hover {
+  background: #f5f5f5;
+}
+
+.btn-app {
+  background: #f5e8d5;
+  color: #9a6b37;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-app:hover {
+  background: #f0d9b5;
+}
+
+.btn-login {
+  background: #2d7d46;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-login:hover {
+  background: #256838;
+}
+
+/* ====================== 左侧固定菜单（替换为图片中的查找跑步路线） ====================== */
+.sidebar {
+  position: absolute;
+  top: 56px;
+  left: 0;
+  width: 360px;
+  height: calc(100vh - 56px);
+  background: #fff;
+  border-right: 1px solid #e5e5e5;
+  z-index: 998;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+}
+
+.sidebar-header {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.btn-find-route {
+  width: 100%;
+  padding: 14px;
+  background: #2185d0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 20px 0;
+}
+.btn-find-route:hover {
+  background: #1678c2;
+}
+
+.recommend-title {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* ====================== 地图区域 ====================== */
+#map {
+  position: absolute;
+  top: 56px;
+  left: 360px;
+  width: calc(100vw - 360px);
+  height: calc(100vh - 56px);
+  z-index: 1;
+}
+
+/* ====================== 地图右上角操作栏（参考 komoot） ====================== */
+.map-controls {
+  position: absolute;
+  top: 72px;
+  right: 20px;
+  z-index: 998;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.map-btn {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.map-btn:hover {
+  background: #f5f5f5;
+}
+
+/* ====================== 提示气泡 ====================== */
+.tooltip {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 13px;
+  color: #333;
+  z-index: 998;
+}
+
+/* ====================== 移动端适配 ====================== */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 300px;
+  }
+  #map {
+    left: 300px;
+    width: calc(100vw - 300px);
+  }
+}
+
+@media (max-width: 768px) {
+  .header-right .nav-link {
+    display: none;
+  }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  #map {
+    left: 0;
+    width: 100vw;
+  }
 }
 </style>
 </head>
-
 <body>
-<!-- 头部LOGO - 悬浮 -->
+
+<!-- 顶部导航栏 -->
 <header>
-  <img src="images/logo.jpg" class="logo" alt="Logo">
-  <div class="header-text">
-    <h1>CityFeet</h1>
-    <p class="slogan">步履无界，跑遍城隅</p>
+  <div class="header-left">
+    <img src="images/logo.jpg" class="logo" alt="CityFeet Logo">
+    <div class="activity-selector">
+      <span class="activity-icon">🏃</span>
+      <span>跑步</span>
+      <span>▼</span>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <input type="text" class="search-box" placeholder="搜索城市、路线或地点...">
+  </div>
+
+  <div class="header-right">
+    <a href="#" class="nav-link">Routes</a>
+    <a href="#" class="nav-link">Planner</a>
+    <a href="#" class="nav-link">Features</a>
+    <a href="#" class="nav-link">Updates</a>
+    <button class="btn-app">
+      <span>📱</span>
+      <span>App</span>
+    </button>
+    <button class="btn-login">Login or Signup</button>
   </div>
 </header>
 
-<!-- 悬浮菜单 -->
+<!-- 左侧固定菜单（替换为图片中的查找跑步路线表单） -->
 <div class="sidebar">
-  <h2 class="sidebar-title">查找跑步路线</h2>
+  <div class="sidebar-header">查找跑步路线</div>
+
   <div class="form-group">
     <label>定位位置</label>
-    <input id="location" placeholder="例如：北京市朝阳区国贸中心">
+    <input type="text" value="undefined" readonly>
   </div>
+
   <div class="form-group">
     <label>路线长度</label>
-    <select id="route-length">
-      <option value="short">短途 2-3公里</option>
-      <option value="medium" selected>中程 5公里</option>
-      <option value="long">长途 8-10公里</option>
+    <select>
+      <option>短途 2–3公里</option>
+      <option>中程 5–8公里</option>
+      <option>长距离 10公里+</option>
     </select>
   </div>
+
   <div class="form-group">
     <label>路线类型</label>
-    <select id="route-type">
-      <option value="park" selected>公园绿道</option>
-      <option value="road">城市道路</option>
-      <option value="river">滨河步道</option>
+    <select>
+      <option>城市道路</option>
+      <option>公园绿道</option>
+      <option>滨江/滨海</option>
     </select>
   </div>
-  <button id="search-btn">查找跑步路线</button>
 
-  <div class="route-list">
-    <h3 class="route-list-title">推荐路线</h3>
-    <div id="route-list-content"></div>
-  </div>
+  <button class="btn-find-route">查找跑步路线</button>
+
+  <div class="recommend-title">推荐路线</div>
 </div>
 
-<!-- 地图铺满全屏 -->
+<!-- 地图 -->
 <div id="map"></div>
 
-<!-- 底部版权 - 悬浮 -->
-<footer>
-  <p class="copyright">© 2026 CityFeet.cn 版权所有 · 专注城市跑步路线推荐</p>
-</footer>
+<!-- 地图右上角控制按钮 -->
+<div class="map-controls">
+  <div class="map-btn">N</div>
+  <div class="map-btn">⊞</div>
+  <div class="map-btn">+</div>
+  <div class="map-btn">−</div>
+</div>
+
+<!-- 底部提示 -->
+<div class="tooltip">
+  Tip: Tap on the map to see routes starting from that location.
+</div>
 
 <script src="config.js"></script>
 <script>
 let map = null;
-
-// 路线数据（精简版）
-const routeData = {
-  short:{
-    park:[{name:"城市中央公园迷你环线",length:"2.5公里",desc:"平坦步道，无车辆干扰"},
-          {name:"社区绿地小圈",length:"2.2公里",desc:"绿植丰富，人少安静"}],
-    road:[{name:"商务中心周边环线",length:"2.8公里",desc:"清晨车少，补给方便"},
-          {name:"酒店周边街区",length:"2.3公里",desc:"安全性高，夜跑合适"}],
-    river:[{name:"滨河短步道",length:"2.6公里",desc:"空气清新，视野开阔"},
-           {name:"运河休闲段",length:"2.4公里",desc:"慢节奏，适合放松"}]
-  },
-  medium:{
-    park:[{name:"城市公园主环线",length:"5公里",desc:"经典路线，设施完善"},
-          {name:"体育公园标准圈",length:"4.8公里",desc:"专业跑道，减震舒适"}],
-    road:[{name:"城市主干道环线",length:"5.2公里",desc:"标识清晰，更安全"},
-          {name:"商圈外围路线",length:"4.9公里",desc:"人车稀少，跑感舒适"}],
-    river:[{name:"滨河景观大道",length:"5公里",desc:"风景优美，体验佳"},
-           {name:"江滩公园环线",length:"5.1公里",desc:"空气湿润，适合晨跑"}]
-  },
-  long:{
-    park:[{name:"森林公园大环线",length:"8.5公里",desc:"全程绿道，无红绿灯"},
-          {name:"湿地公园环线",length:"9.2公里",desc:"原生态环境，路况舒适"}],
-    road:[{name:"城市外环休闲道",length:"8.8公里",desc:"车少宽敞，有补给点"},
-          {name:"科教园区环线",length:"9.5公里",desc:"环境安静，道路平整"}],
-    river:[{name:"滨江全程步道",length:"10公里",desc:"视野极佳，适合耐力跑"},
-           {name:"环城水系绿道",length:"9.8公里",desc:"风景多变，有休息区"}]
-  }
-};
 
 // 动态加载高德地图
 function loadAMap() {
@@ -153,119 +382,23 @@ function loadAMap() {
   });
 }
 
-// 初始化地图和逻辑
+// 初始化地图
 async function init() {
   try {
     const AMap = await loadAMap();
-    // 地图铺满全屏初始化
     map = new AMap.Map("map", {
-      zoom:14,
-      center:[116.397428, 39.90923],
-      mapStyle:'amap://styles/light',
-      resizeEnable: true // 自适应窗口大小
+      zoom: 13,
+      center: [113.55, 22.25], // 珠海坐标，和示例图一致
+      mapStyle: 'amap://styles/light',
+      resizeEnable: true
     });
-
-    // 定位功能
-    map.plugin('AMap.Geolocation', function(){
-      const geo = new AMap.Geolocation({
-        enableHighAccuracy:true, 
-        timeout:10000,
-        buttonPosition: 'RB', // 定位按钮放右下角
-        buttonStyle: 'border:0; border-radius:4px; margin:10px;'
-      });
-      map.addControl(geo);
-      // 定位成功填充地址
-      geo.getCurrentPosition((status, result)=>{
-        if(status=='complete'){
-          document.getElementById('location').value = result.formattedAddress;
-        }
-      });
-    });
-
-    // 绑定搜索按钮事件
-    bindSearch(AMap);
-  } catch(e) {
-    alert("地图加载失败，请检查高德Key是否正确");
-    console.error(e);
+  } catch (e) {
+    console.error("地图加载失败", e);
   }
 }
 
-// 绑定搜索逻辑
-function bindSearch(AMap){
-  document.getElementById('search-btn').onclick = () => {
-    const loc = document.getElementById('location').value.trim();
-    const len = document.getElementById('route-length').value;
-    const typ = document.getElementById('route-type').value;
-    
-    if(!loc) return alert('请输入定位位置');
-
-    // 地址解析定位
-    const geo = new AMap.Geocoder({city:loc.split('市')[0]||'全国'});
-    geo.getLocation(loc, (status, result)=>{
-      if(status!='complete'||!result.geocodes.length) {
-        return alert('定位失败，请检查地址是否正确');
-      }
-      const pos = result.geocodes[0].location;
-      // 移动地图到定位点
-      map.setCenter(pos); 
-      map.setZoom(15);
-      // 清空之前的标记和路线
-      map.clearMap();
-      // 添加定位标记
-      new AMap.Marker({
-        position:pos, 
-        map:map,
-        icon: new AMap.Icon({
-          size: new AMap.Size(30,30),
-          image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-          imageSize: new AMap.Size(30,30)
-        })
-      });
-      // 展示推荐路线
-      showRoutes(len, typ, pos, AMap);
-    });
-  }
-}
-
-// 展示推荐路线
-function showRoutes(len, typ, center, AMap){
-  const list = document.getElementById('route-list-content');
-  list.innerHTML = ''; // 清空之前的路线
-  
-  const routes = routeData[len][typ];
-  routes.forEach((route, index)=>{
-    // 创建路线列表项
-    const item = document.createElement('div');
-    item.className='route-item';
-    item.innerHTML=`<h3>${route.name}</h3><p>${route.length}｜${route.desc}</p>`;
-    list.appendChild(item);
-
-    // 生成路线轨迹（缩小偏移量，适配小菜单）
-    const offset = 0.008*(index+1); // 缩小路线偏移，避免路线太分散
-    const path = [
-      [center.lng-offset, center.lat-offset],
-      [center.lng+offset, center.lat-offset],
-      [center.lng+offset, center.lat+offset],
-      [center.lng-offset, center.lat+offset],
-      [center.lng-offset, center.lat-offset]
-    ];
-    // 绘制路线
-    new AMap.Polyline({
-      path:path,
-      strokeColor:['#3498db','#e74c3c','#2ecc71'][index%3],
-      strokeWeight:4, // 缩小路线宽度
-      strokeOpacity:0.8,
-      map:map
-    });
-  });
-}
-
-// 页面加载完成初始化
 window.onload = init;
-// 窗口大小变化时地图自适应
-window.onresize = () => {
-  if(map) map.resize();
-};
+window.onresize = () => map && map.resize();
 </script>
 </body>
 </html>
