@@ -112,7 +112,7 @@ header {
 
 .btn-app {
   background: #f5e8d5;
-  color: #9a6b37;
+  color: #9a6b3;
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
@@ -143,69 +143,82 @@ header {
   left: 0;
   width: 320px;
   height: calc(100vh - 56px);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
   border-right: 1px solid #e5e5e5;
   z-index: 998;
   overflow-y: auto;
-  padding: 20px 16px;
-  transition: transform 0.3s ease;
+  padding: 12px 10px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  font-size: 12px;
+}
+
+.map-mask {
+  position: absolute;
+  top: 56px;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 56px);
+  background: rgba(0,0,0,0.2);
+  z-index: 997;
+  display: none;
+  transition: opacity 0.3s ease;
 }
 
 .sidebar-header {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   color: #222;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .form-group label {
   display: block;
-  font-size: 15px;
+  font-size: 12px;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-weight: 500;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 14px 16px;
+  padding: 8px 10px;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  background: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.9);
 }
 
 .form-group select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
+  background-position: right 8px center;
+  background-size: 12px;
 }
 
 .btn-find-route {
   width: 100%;
-  padding: 16px;
+  padding: 10px;
   background: #2185d0;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  margin: 20px 0 30px 0;
+  margin: 12px 0 16px 0;
 }
 .btn-find-route:hover {
   background: #1678c2;
 }
 
 .recommend-title {
-  font-size: 15px;
+  font-size: 12px;
   color: #333;
   font-weight: 500;
 }
@@ -243,20 +256,6 @@ header {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.tooltip {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  font-size: 13px;
-  color: #333;
-  z-index: 998;
-}
-
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
@@ -266,17 +265,19 @@ header {
   }
   .sidebar {
     transform: translateX(-100%);
-    width: 280px;
+    width: 140px;
+    opacity: 0.85;
   }
   .sidebar.active {
     transform: translateX(0);
+    opacity: 0.85;
+  }
+  .sidebar.active + .map-mask {
+    display: block;
   }
   #map {
     left: 0;
     width: 100vw;
-  }
-  .tooltip {
-    display: none;
   }
 }
 </style>
@@ -337,6 +338,8 @@ header {
   <div class="recommend-title">推荐路线</div>
 </div>
 
+<div class="map-mask" id="mapMask"></div>
+
 <div id="map"></div>
 
 <div class="map-controls">
@@ -350,12 +353,31 @@ header {
 <script>
 let map = null;
 
-// 侧边栏
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
-menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+const mapMask = document.getElementById('mapMask');
+const findRouteBtn = document.querySelector('.btn-find-route');
 
-// 地图加载（和你之前能用的一模一样）
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('active');
+});
+
+mapMask.addEventListener('click', () => {
+  sidebar.classList.remove('active');
+});
+
+document.getElementById('map').addEventListener('click', () => {
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove('active');
+  }
+});
+
+findRouteBtn.addEventListener('click', () => {
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove('active');
+  }
+});
+
 function loadAMap() {
   return new Promise((resolve, reject) => {
     if (window.AMap) return resolve(window.AMap);
@@ -367,7 +389,6 @@ function loadAMap() {
   });
 }
 
-// 极简定位
 async function init() {
   const AMap = await loadAMap();
   map = new AMap.Map('map', {
@@ -376,16 +397,15 @@ async function init() {
     resizeEnable: true
   });
 
-  // 尝试定位，不阻塞地图
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
       const lng = pos.coords.longitude;
       const lat = pos.coords.latitude;
       map.setCenter([lng, lat]);
       new AMap.Marker({ map, position: [lng, lat] });
-      document.getElementById('posText').value = `已定位：${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      document.getElementById('posText').value = "已定位";
     }, err => {
-      document.getElementById('posText').value = "定位失败，显示默认位置";
+      document.getElementById('posText').value = "定位失败";
     });
   }
 }
